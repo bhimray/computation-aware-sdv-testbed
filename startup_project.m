@@ -8,4 +8,8 @@ addpath(genpath(fullfile(projectRoot, "common")));
 addpath(genpath(fullfile(projectRoot, "phase0")));
 
 fprintf("Project initialized from:\n%s\n", projectRoot);
+
+run(fullfile(projectRoot, ...
+    "common", "configuration", ...
+    "configure_vehicle_parameters.m"))
 end

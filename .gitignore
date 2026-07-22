@@ -38,3 +38,15 @@ codegen/
 # SimBiology backup files
 *.sbproj.backup
 *.sbproj.bak
+
+# Simulation results generated locally
+phase*/results/*
+!phase*/results/.gitkeep
+
+# Local machine configuration
+local_config.m
+secrets.m
+
+# Operating-system files
+Thumbs.db
+.DS_Store
