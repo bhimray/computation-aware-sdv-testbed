@@ -12,4 +12,7 @@ fprintf("Project initialized from:\n%s\n", projectRoot);
 run(fullfile(projectRoot, ...
     "common", "configuration", ...
     "configure_vehicle_parameters.m"))
+
+assignin("base", "UT", UT);
+assignin("base", "v_ini", v_ini);
 end

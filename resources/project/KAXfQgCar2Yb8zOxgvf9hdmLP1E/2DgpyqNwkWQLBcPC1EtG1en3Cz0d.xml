@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Info File="common/configuration/configure_vehicle_parameters.m" GroupUUID="default" Icon="" Name="configure_vehicle_parameters" Type="StartUp" Visible="0">
+    <Extension Name="StartUpPrev" Value="HEAD"/>
+</Info>

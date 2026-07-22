@@ -43,9 +43,3 @@ UT.CRF   = 0.03;        % rolling-resistance coefficient
 % Default initial condition
 v_ini = 5;              % m/s
 
-%sim
-simOut = sim("PlantWrapper");
-% Extract simulation results
-ts_FxFL = simOut.PSG1_FxFL;             % timeseries object
-time = ts_FxFL.Time;
-data = ts_FxFL.Data;
