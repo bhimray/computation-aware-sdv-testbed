@@ -8,7 +8,7 @@ modelName = "plant_open_loop_step_steer_test";
 testStopTime_s = 500;
 test_step_time_s = 250; %for step response
 test_braking_cmd = 0;
-test_steering_wheel_deg = 40;
+test_steering_wheel_deg = 20;
 test_slope = 0;
 test_road_friction_mu = 0.95; % [1]
 

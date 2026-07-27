@@ -10,7 +10,7 @@ global UT
 UT = struct();
 
 % Simulation
-UT.Ts_Veh = 0.01;       % s, vehicle-dynamics simulation period
+UT.Ts_Veh = 0.1;       % s, vehicle-dynamics simulation period
 
 % Geometry
 UT.lf = 1.11;           % m, CG to front axle
@@ -39,7 +39,9 @@ UT.Cd    = 0.28;        % aerodynamic drag coefficient
 UT.Awind = 2.51;        % m^2, frontal area
 UT.Vw    = 0;           % m/s, wind speed
 UT.CRF   = 0.03;        % rolling-resistance coefficient
+UT.mu = 0.80;           % road friction
 
 % Default initial condition
-v_ini = 5;              % m/s
+UT.v_ini = 5;              % m/s
+v_ini = UT.v_ini;
 

@@ -1,6 +1,7 @@
 %% Open-loop constant-drive-torque sanity test
 
 startup_project;
+controller_parameters;
 
 modelName = "plant_open_loop_test";
 
@@ -44,12 +45,15 @@ for k = 1:numel(torqueLevels_Nm)
 
     vxSignal = logs.get("vx_mps").Values;
     axSignal = logs.get("ax_mps2").Values;
+    FaxSignal = logs.get("Fax").Values;
+
 
     results(k).torque_Nm = torqueLevels_Nm(k);
     results(k).time_s = vxSignal.Time;
     results(k).vx_mps = vxSignal.Data;
     results(k).ax_time_s = vxSignal.Time;
     results(k).ax_mps2 = axSignal.Data;
+    results(k).Fax_N = FaxSignal.Data;
 end
 
 
@@ -74,21 +78,40 @@ ylabel("Longitudinal speed, V_x (m/s)");
 title("Open-loop response to constant drive torque (velocity)");
 legend(labels, Location = "best");
 
-%% acceleration
-% figure;
-% hold on;
-% labels = strings(1, numel(results));
-% for k = 1:numel(results)
-%     plot( ...
-%         results(k).ax_time_s, ...
-%         results(k).ax_mps2, ...
-%         linestyles{k} ...
-%     );
-%     labels(k) = sprintf("%d N.m", results(k).torque_Nm);
-% end
-% 
-% grid on;
-% xlabel("Time (s)");
-% ylabel("Acceleration, a_x (m/s2)");
-% title("Open-loop response to constant drive torque (acceleration)");
-% legend(labels, Location = "best");
+%% Air drag force
+figure;
+hold on;
+labels = strings(1, numel(results));
+for k = 1:numel(results)
+    plot(...
+        results(k).time_s, ...
+        results(k).Fax_N, ...
+        linestyles{k} ...
+        );
+    labels(k) = sprintf("%d N.m", results(k).torque_Nm);
+end
+
+grid on;
+xlabel("Time (s)");
+ylabel("Drag Force, Fax (N)");
+title("Open-loop response to constant drive torque (Air drag force)");
+legend(labels, Location = "best");
+
+% % acceleration
+figure;
+hold on;
+labels = strings(1, numel(results));
+for k = 1:numel(results)
+    plot( ...
+        results(k).ax_time_s, ...
+        results(k).ax_mps2, ...
+        linestyles{k} ...
+    );
+    labels(k) = sprintf("%d N.m", results(k).torque_Nm);
+end
+
+grid on;
+xlabel("Time (s)");
+ylabel("Acceleration, a_x (m/s2)");
+title("Open-loop response to constant drive torque (acceleration)");
+legend(labels, Location = "best");

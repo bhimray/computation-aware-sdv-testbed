@@ -13,6 +13,6 @@ run(fullfile(projectRoot, ...
     "common", "configuration", ...
     "configure_vehicle_parameters.m"))
 
-assignin("base", "UT", UT);
-assignin("base", "v_ini", v_ini);
+assignin("base", 'UT', UT);
+
 end
