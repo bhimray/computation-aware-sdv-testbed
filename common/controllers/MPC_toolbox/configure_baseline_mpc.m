@@ -110,10 +110,10 @@ mpc_baseline.MV(2).RateMax = ...
 %% Hard actuator constraints
 
 for inputIndex = 1:2
-    mpc_baseline.MV(inputIndex).MinECR = 0.1;
-    mpc_baseline.MV(inputIndex).MaxECR = 0.1;
-    mpc_baseline.MV(inputIndex).RateMinECR = 1.0;
-    mpc_baseline.MV(inputIndex).RateMaxECR = 1.0;
+    mpc_baseline.MV(inputIndex).MinECR = 0;
+    mpc_baseline.MV(inputIndex).MaxECR = 0;
+    mpc_baseline.MV(inputIndex).RateMinECR = 0;
+    mpc_baseline.MV(inputIndex).RateMaxECR = 0;
 end
 
 %% State constraints through output constraints
@@ -141,15 +141,15 @@ mpc_baseline.Weights.ECR = ...
 mpc_baseline.MV(1).ScaleFactor = ...
     p.maximumSignedTorque_Nm - p.minimumSignedTorque_Nm;
 
-% mpc_baseline.MV(2).ScaleFactor = ...
-%     p.maximumRoadWheelAngle_rad - p.minimumRoadWheelAngle_rad;
+mpc_baseline.MV(2).ScaleFactor = ...
+    p.maximumRoadWheelAngle_rad - p.minimumRoadWheelAngle_rad;
 
 % Output operating spans
 mpc_baseline.OV(1).ScaleFactor = p.maximumSpeed_mps;
 mpc_baseline.OV(2).ScaleFactor = 2*p.maximumLateralSpeed_mps;
 mpc_baseline.OV(3).ScaleFactor = 2*p.maximumYawRate_radps;
-% mpc_baseline.OV(4).ScaleFactor = 2*p.maximumLateralError_m;
-% mpc_baseline.OV(5).ScaleFactor = 2*p.maximumHeadingError_rad;
+mpc_baseline.OV(4).ScaleFactor = 2*p.maximumLateralError_m;
+mpc_baseline.OV(5).ScaleFactor = 2*p.maximumHeadingError_rad;
 
 % Typical operating span: -0.05 to +0.05 rad
 mpc_baseline.MV(2).ScaleFactor = 0.10; % rad

@@ -42,6 +42,6 @@ UT.CRF   = 0.03;        % rolling-resistance coefficient
 UT.mu = 0.80;           % road friction
 
 % Default initial condition
-UT.v_ini = 5;              % m/s
+UT.v_ini = 1;              % m/s
 v_ini = UT.v_ini;
 

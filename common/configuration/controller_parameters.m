@@ -19,13 +19,20 @@ controller.Ts_s = UT.Ts_Veh;
 controller.pose_x0_m = 0;
 controller.pose_y0_m = 0;
 controller.integration_substeps = 10;
+
+%% Initial MPC horizon values in second
+
+controller.prediction_horizon_s = 1.0;
+controller.control_horizon_s = 0.10;
+
 %% Backend selection
 
 controller.BACKEND_MATLAB = 2;
 controller.BACKEND_ACADOS = 1;
+controller.BACKEND_ADAPTIVE = 3;
 
 controller.controller_backend = ...
-    controller.BACKEND_MATLAB;
+    controller.BACKEND_ADAPTIVE;
 
 %% Prediction-model dimensions
 
@@ -76,9 +83,9 @@ controller.nominal_state = [
     ];
 
 %% weights
-controller.output_weights = [10 0.1 10 1000 1000];
-controller.input_weights = [10 10];
-controller.input_rate_weights = [1 1];
+controller.output_weights = [1 0.1 10 100 100];
+controller.input_weights = [1 1];
+controller.input_rate_weights = [1 0.1];
 
 %% Nominal controller-model vehicle parameters
 
@@ -145,10 +152,7 @@ controller.reference_names = [ ...
     "lateral_error_reference_m"
     "heading_error_reference_rad"];
 
-%% Initial MPC horizon values
 
-controller.prediction_horizon_s = 3.0;
-controller.control_horizon_s = 1.0;
 %% Backend interface
 
 controller.backend_input_names = [ ...
@@ -188,8 +192,8 @@ controller.maximumRoadWheelAngle_rad =  0.30;
 controller.minimumSignedTorqueRate_Nmps = -10;
 controller.maximumSignedTorqueRate_Nmps =  10;
 
-controller.minimumRoadWheelRate_radps = -deg2rad(1);
-controller.maximumRoadWheelRate_radps =  deg2rad(1);
+controller.minimumRoadWheelRate_radps = -deg2rad(20);
+controller.maximumRoadWheelRate_radps =  deg2rad(20);
 
 %% State/output constraints
 %
@@ -197,8 +201,8 @@ controller.maximumRoadWheelRate_radps =  deg2rad(1);
 % [vx, vy, yaw_rate, lateral_error, heading_error]
 controller.maximumSpeed_mps = 12;
 controller.maximumLateralSpeed_mps = 1.0;
-controller.maximumYawRate_radps = deg2rad(10);
-controller.maximumLateralError_m = 0.2;
+controller.maximumYawRate_radps = deg2rad(45);
+controller.maximumLateralError_m = 0.5;
 controller.maximumHeadingError_rad = deg2rad(15);
 
 controller.minimumState = [
