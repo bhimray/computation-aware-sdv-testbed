@@ -10,7 +10,7 @@ global UT
 UT = struct();
 
 % Simulation
-UT.Ts_Veh = 0.1;       % s, vehicle-dynamics simulation period
+UT.Ts_Veh = 0.01;       % s, vehicle-dynamics simulation period
 
 % Geometry
 UT.lf = 1.11;           % m, CG to front axle

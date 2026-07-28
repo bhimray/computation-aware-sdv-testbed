@@ -10,7 +10,7 @@ test_step_time_s = 250; %for step response
 test_braking_cmd = 0;
 test_steering_wheel_deg = 20;
 test_slope = 0;
-test_road_friction_mu = 0.95; % [1]
+test_road_friction_mu = 0.80; % [1]
 
 % torque range
 torqueLevels_Nm = 100;

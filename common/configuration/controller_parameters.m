@@ -16,6 +16,8 @@ function controller = controller_parameters(UT)
 %% Execution configuration
 
 controller.Ts_s = UT.Ts_Veh;
+controller.pose_x0_m = 0;
+controller.pose_y0_m = 0;
 controller.integration_substeps = 10;
 %% Backend selection
 

@@ -1,9 +1,7 @@
 %% Open-loop constant-drive-torque sanity test
-
+clear all;
 startup_project;
 controllerParams = controller_parameters(UT);
-controllerParams.pose_x0_m = reference.X_ref_m(1); % initial state x0 for integrator
-controllerParams.pose_y0_m = reference.Y_ref_m(1); % initial state y0 for integrator
 
 modelName = "plant_open_loop_test";
 
@@ -12,7 +10,7 @@ testStopTime_s = 100;
 test_braking_cmd = 0;
 test_steering_wheel_deg = 0;
 test_slope = 0;
-test_road_friction_mu = 0.95; % [1]
+test_road_friction_mu = 0.90; % [1]
 
 % torque range
 torqueLevels_Nm = [100, 150, 200, 250, 300];
