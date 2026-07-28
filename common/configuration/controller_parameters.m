@@ -16,7 +16,7 @@ function controller = controller_parameters(UT)
 %% Execution configuration
 
 controller.Ts_s = UT.Ts_Veh;
-
+controller.integration_substeps = 10;
 %% Backend selection
 
 controller.BACKEND_MATLAB = 2;
@@ -171,8 +171,8 @@ controller.status.FAILURE = -1;
 %% Manipulated-variable magnitude limits
 
 % Signed torque
-controller.minimumSignedTorque_Nm = -50;
-controller.maximumSignedTorque_Nm =  50;
+controller.minimumSignedTorque_Nm = -300;
+controller.maximumSignedTorque_Nm =  300;
 
 % Front road-wheel angle
 controller.minimumRoadWheelAngle_rad = -0.30;

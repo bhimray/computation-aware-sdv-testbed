@@ -1,8 +1,8 @@
 %% Phase 0 baseline regeneration entry point
 clearvars;
-bdclose("all");
-clear functions;
-rehash;
+% bdclose("all");
+% clear functions;
+% rehash;
 
 startup_project;
 
@@ -31,180 +31,263 @@ controllerParams = controller_parameters(UT);
 controllerParams.pose_x0_m = reference.X_ref_m(1); % initial state x0 for integrator
 controllerParams.pose_y0_m = reference.Y_ref_m(1); % initial state y0 for integrator
 
-[Ad,Bmv,Emd] = linearize_prediction_model( ...
-    controllerParams);
+adaptiveModelParams = ...
+    adaptive_model_parameters(controllerParams);
+
+[Ad0,Bmv0,Emd0] = ...
+    linearize_prediction_model(controllerParams);
 
 mpc_baseline = configure_baseline_mpc( ...
-    Ad,Bmv,Emd,controllerParams);
+    Ad0,Bmv0,Emd0,controllerParams);
+plant0 = mpc_baseline.Model.Plant;
 
-assignin("base","mpc_baseline", mpc_baseline);
+[A0,B0,C0,D0] = ssdata(plant0);
 
-simOut = sim("phase0\models\phase0_baseline.slx", StopTime = "15");
-logs = simOut.logsout;
+fprintf("States:  %d\n",size(A0,1));
+fprintf("Inputs:  %d\n",size(B0,2));
+fprintf("Outputs: %d\n",size(C0,1));
+fprintf("Ts:      %.3f s\n",plant0.Ts);
 
-vxSignal = logs.get("vx_meas").Values;
-axSignal = logs.get("ax_meas").Values;
-torque = logs.get("torque_opt").Values;
-steering_angle = logs.get("steering_angle_opt").Values;
-yaw_rate_radps = logs.get("yaw_rate_meas").Values;
-solve_status = logs.get("solve_status").Values;
-x_pos = logs.get("x_pos").Values;
-y_pos = logs.get("y_pos").Values;
-est_states = logs.get("est_state").Values;
+disp("Input groups:");
+disp(plant0.InputGroup)
 
-results = struct( ...
-  'time_s', [], ...
-  'torque_Nm', [], ...
-  'vx_mps', [], ...
-  'ax_mps2', [], ...
-  'steering_angle_rad', [], ...
-  'yaw_rate_radps',[], ...
-  'x_pos_m', [], ...
-  'y_pos_m', [], ...
-  'est_state',[], ...
-  'solve_status', [] ...
-);
+assert(isequal(size(A0),[5 5]), ...
+    "A must be 5-by-5");
+
+assert(isequal(size(B0),[5 3]), ...
+    "B must contain two MVs and one measured disturbance");
+
+assert(isequal(size(C0),[5 5]), ...
+    "C must be 5-by-5");
+
+assert(isequal(size(D0),[5 3]), ...
+    "D must be 5-by-3");
+
+assert(abs(plant0.Ts-controllerParams.Ts_s) < 1e-12, ...
+    "Prediction model sample time is incorrect");
+
+assert(all(isfinite(A0(:))) && all(isfinite(B0(:))), ...
+    "Prediction model contains NaN or Inf");
+
+disp("Nominal prediction model passed.");
 
 
-results.time_s = torque.Time;
-results.torque_Nm = torque.Data;
-results.vx_mps = vxSignal.Data;
-results.ax_mps2 = axSignal.Data;
-results.steering_angle_rad = steering_angle.Data;
-results.yaw_rate_radps = yaw_rate_radps.Data;
-results.x_pos_m = x_pos.Data;
-results.y_pos_m = y_pos.Data;
-results.est_state = est_states.Data;
-results.solve_status = solve_status.Data;
 
-%% torque
-figure;
-hold on;
-plot(...
-    results.time_s, ...
-    results.torque_Nm ...
-    );
+mpc_adaptive = configure_baseline_mpc( ...
+    Ad0,Bmv0,Emd0,controllerParams);
+assert(isa(mpc_adaptive,"mpc"), ...
+    "mpc_adaptive was not created");
 
-grid on;
-xlabel("Time (s)");
-ylabel("Torque, Nm)");
-title("Applied Torque (Nm)");
-legend(Location = "best");
+adaptivePlant0 = mpc_adaptive.Model.Plant;
 
-%% steering_angel_rad
-figure;
-hold on;
-plot(...
-    results.time_s, ...
-    results.steering_angle_rad ...
-    );
+[Aa,Ba,Ca,Da] = ssdata(adaptivePlant0);
 
-grid on;
-xlabel("Time (s)");
-ylabel("Applied steering angle, rad)");
-title("Applied steering angle");
-legend(Location = "best");
+assert(isequal(size(Aa),[5 5]));
+assert(isequal(size(Ba),[5 3]));
+assert(isequal(size(Ca),[5 5]));
+assert(isequal(size(Da),[5 3]));
 
-%% yaw_rate_radps
-figure;
-hold on;
-plot(...
-    results.time_s, ...
-    results.yaw_rate_radps ...
-    );
+assert(abs(adaptivePlant0.Ts-controllerParams.Ts_s) < 1e-12);
 
-grid on;
-xlabel("Time (s)");
-ylabel("Yaw Rate, rad/s)");
-title("Measured Yaw rate");
-legend(Location = "best");
+disp("Adaptive MPC nominal object passed.");
 
-%% velocity
-figure;
-hold on;
-plot(...
-    results.time_s, ...
-    results.vx_mps ...
-    );
+xNominal = controllerParams.nominal_state;
 
-grid on;
-xlabel("Time (s)");
-ylabel("Longitudinal speed, V_x (m/s)");
-title("Closed loop velocity profile");
-legend(Location = "best");
+uNominal = [
+    controllerParams.nominal_signed_front_axle_torque_Nm
+    controllerParams.nominal_road_wheel_angle_rad
+    ];
 
-%% acceleration
-figure;
-hold on;
-plot(...
-    results.time_s, ...
-    results.ax_mps2 ...
-    );
+xdotNominal = dynamic_model( ...
+    xNominal, ...
+    uNominal, ...
+    controllerParams.nominal_curvature_1pm, ...
+    controllerParams);
 
-grid on;
-xlabel("Time (s)");
-ylabel("Acceleration , a_x (m/s2)");
-title("Closed loop acceleration profile");
-legend(Location = "best");
+disp(xdotNominal);
 
-%% estimated states
-figure;
-hold on;
-est = results.est_state;                % N x nStates (samples x states)
-time = results.time_s;
+assert(norm(xdotNominal,Inf) < 1e-9, ...
+    "Nominal operating point is not an equilibrium");
 
-nStates = min(5, size(est,2));
-colors = lines(nStates);
-for k = 1:nStates
-    plot(time, est(:,k), 'Color', colors(k,:), 'LineWidth', 1.2, 'DisplayName', sprintf('State %d', k));
+disp("Nonlinear-model equilibrium test passed.");
+
+xNominal = controllerParams.nominal_state;
+
+uNominal = [
+    controllerParams.nominal_signed_front_axle_torque_Nm
+    controllerParams.nominal_road_wheel_angle_rad
+    ];
+
+xNext = propagate_prediction_model( ...
+    xNominal, ...
+    uNominal, ...
+    controllerParams.nominal_curvature_1pm, ...
+    controllerParams);
+
+disp(xNext-xNominal);
+
+assert(all(isfinite(xNext)), ...
+    "Discrete model produced NaN or Inf");
+
+assert(norm(xNext-xNominal,Inf) < 1e-9, ...
+    "Nominal equilibrium changed during propagation");
+
+disp("Discrete nonlinear propagation test passed.");
+
+xNominal = controllerParams.nominal_state;
+
+uNominal = [
+    controllerParams.nominal_signed_front_axle_torque_Nm
+    controllerParams.nominal_road_wheel_angle_rad
+    ];
+
+kappaNominal = ...
+    controllerParams.nominal_curvature_1pm;
+
+[Aonline,Bonline,Conline,Donline, ...
+    Xonline,Yonline,Uonline,DXonline] = ...
+    adaptive_model_update( ...
+    xNominal, ...
+    uNominal, ...
+    kappaNominal, ...
+    controllerParams);
+
+assert(isequal(size(Aonline),[5 5]));
+assert(isequal(size(Bonline),[5 3]));
+assert(isequal(size(Conline),[5 5]));
+assert(isequal(size(Donline),[5 3]));
+
+assert(all(isfinite(Aonline(:))));
+assert(all(isfinite(Bonline(:))));
+assert(norm(DXonline,Inf) < 1e-9);
+
+% Compare against the existing nominal analytical model.
+[AdReference,BmvReference,EmdReference] = ...
+    linearize_prediction_model(controllerParams);
+
+BReference = [BmvReference EmdReference];
+
+relativeAError = ...
+    norm(Aonline-AdReference,Inf) ...
+    / max(norm(AdReference,Inf),eps);
+
+relativeBError = zeros(1,3);
+
+for inputIndex = 1:3
+    relativeBError(inputIndex) = ...
+        norm(Bonline(:,inputIndex) ...
+        - BReference(:,inputIndex),Inf) ...
+        / max(norm(BReference(:,inputIndex),Inf),eps);
 end
 
-grid on;
-xlabel("Time (s)");
-ylabel("Estimated state value");
-title("Estimated States vs Time");
-legend("Location","best");
-hold off;
+fprintf("Relative A error: %.6g\n",relativeAError);
+fprintf("Relative B errors: %.6g %.6g %.6g\n", ...
+    relativeBError);
 
-%% trajectory
-figure;
-plot( ...
-    reference.X_ref_m, ...
-    reference.Y_ref_m, ...
-    "k--", ...
-    "LineWidth", 1.5, ...
-    "DisplayName", "Reference track");
+assert(relativeAError < 0.01, ...
+    "Online A matrix does not match the nominal model");
 
-hold on;
+assert(all(relativeBError < 0.05), ...
+    "Online B matrix does not match the nominal model");
 
-plot( ...
-    results.x_pos_m, ...
-    results.y_pos_m, ...
-    "b-", ...
-    "LineWidth", 1.5, ...
-    "DisplayName", "Vehicle trajectory");
+disp("Adaptive model-update test passed.");
 
-plot( ...
-    results.x_pos_m(1), ...
-    results.y_pos_m(1), ...
-    "go", ...
-    "MarkerFaceColor", "g", ...
-    "DisplayName", "Start");
+load_system("MPC_backend_adaptive");
+assert(all(structfun( ...
+    @(value) isnumeric(value) ...
+    && isreal(value) ...
+    && all(isfinite(value(:))), ...
+    adaptiveModelParams)), ...
+    "Adaptive model parameters must be finite numeric values");
 
-plot( ...
-    results.x_pos_m(end), ...
-    results.y_pos_m(end), ...
-    "ro", ...
-    "MarkerFaceColor", "r", ...
-    "DisplayName", "End");
+disp("Numeric adaptive-model parameters passed.");
+set_param( ...
+    "MPC_backend_adaptive", ...
+    "SimulationCommand", ...
+    "update");
 
-hold off;
-axis equal;
-grid on;
+disp("Adaptive model-update path compiled successfully.");
 
-xlabel("X position (m)");
-ylabel("Y position (m)");
-title("Reference and Closed-Loop Trajectories");
-legend("Location", "best");
+testTs = controllerParams.Ts_s;
+testTime = (0:testTs:1).';
 
+numberOfSamples = numel(testTime);
+
+measuredStateData = repmat( ...
+    controllerParams.nominal_state.', ...
+    numberOfSamples,1);
+
+referenceStateData = measuredStateData;
+
+curvatureData = zeros(numberOfSamples,1);
+
+externalInputs = Simulink.SimulationData.Dataset;
+
+externalInputs = externalInputs.addElement( ...
+    timeseries(measuredStateData,testTime), ...
+    "measured_state");
+
+externalInputs = externalInputs.addElement( ...
+    timeseries(referenceStateData,testTime), ...
+    "state_ref");
+
+externalInputs = externalInputs.addElement( ...
+    timeseries(curvatureData,testTime), ...
+    "k_ref");
+
+simulationInput = ...
+    Simulink.SimulationInput("MPC_backend_adaptive");
+
+simulationInput = simulationInput.setExternalInput( ...
+    externalInputs);
+
+simulationInput = simulationInput.setModelParameter( ...
+    "StopTime",num2str(testTime(end)), ...
+    "SaveOutput","on", ...
+    "OutputSaveName","yout", ...
+    "SaveFormat","Dataset");
+
+simulationOutput = sim(simulationInput);
+
+outputDataset = simulationOutput.get("yout");
+
+torqueSignal = ...
+    outputDataset.getElement("torque").Values;
+
+steeringSignal = ...
+    outputDataset.getElement("steering_angle").Values;
+
+statusSignal = ...
+    outputDataset.getElement("status").Values;
+
+torqueData = torqueSignal.Data(:);
+steeringData = steeringSignal.Data(:);
+statusData = statusSignal.Data(:);
+
+assert(all(isfinite(torqueData)), ...
+    "Torque contains NaN or Inf");
+
+assert(all(isfinite(steeringData)), ...
+    "Steering contains NaN or Inf");
+
+assert(all(torqueData >= ...
+    controllerParams.minimumSignedTorque_Nm-1e-9));
+
+assert(all(torqueData <= ...
+    controllerParams.maximumSignedTorque_Nm+1e-9));
+
+assert(all(steeringData >= ...
+    controllerParams.minimumRoadWheelAngle_rad-1e-9));
+
+assert(all(steeringData <= ...
+    controllerParams.maximumRoadWheelAngle_rad+1e-9));
+
+assert(statusData(end) > 0, ...
+    "Adaptive MPC did not finish with a successful QP status");
+
+fprintf("Final torque: %.3f N*m\n",torqueData(end));
+fprintf("Final steering: %.6f rad\n",steeringData(end));
+fprintf("Final solver status: %.0f\n",statusData(end));
+
+disp("Nominal adaptive-backend test passed.");
 disp("Baseline simulation completed.");

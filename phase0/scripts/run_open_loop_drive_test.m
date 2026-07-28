@@ -1,7 +1,9 @@
 %% Open-loop constant-drive-torque sanity test
 
 startup_project;
-controller_parameters;
+controllerParams = controller_parameters(UT);
+controllerParams.pose_x0_m = reference.X_ref_m(1); % initial state x0 for integrator
+controllerParams.pose_y0_m = reference.Y_ref_m(1); % initial state y0 for integrator
 
 modelName = "plant_open_loop_test";
 
