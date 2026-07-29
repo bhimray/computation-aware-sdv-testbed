@@ -1,7 +1,4 @@
 %% Open-loop constant-drive-torque sanity test
-
-startup_project;
-
 modelName = "plant_open_loop_step_steer_test";
 
 % Test configuration

@@ -42,6 +42,11 @@ reference.kappa_1pm = track.curvature_1pm;
 reference.vx_ref_mps = track.vx_ref_mps;
 reference.yaw_rate_ref_radps = ...
     yawRateReference_radps;
+reference.local_speed_limit_mps = track.local_speed_limit_mps;
+reference.stop_event_table = track.stop_event_table;
+reference.initial_speed_mps = track.initial_speed_mps;
+reference.traversal_time_s = track.traversal_time_s;
+reference.simulation_stop_time_s = track.simulation_stop_time_s;
 
 reference.state_reference = stateReference;
 

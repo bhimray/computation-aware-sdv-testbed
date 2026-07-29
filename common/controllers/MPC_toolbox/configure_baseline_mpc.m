@@ -12,6 +12,7 @@ Cd = eye(5);
 % 3 = reference curvature, measured disturbance
 Dd = zeros(5,3);
 
+disp(Ad)
 predictionPlant = ss( ...
     Ad, [Bmv Emd], Cd, Dd, Ts);
 

@@ -4,12 +4,13 @@ function track = generate_test_track(outputFolder)
 if nargin<1
     thisFileFolder = fileparts(mfilename('fullpath')); % location of current folder
     phase0Folder = fileparts(thisFileFolder);
-    outputFolder = fullfile(phase0Folder, "scenarios");% location of saving folder
+    outputFolder = fullfile( ...
+        phase0Folder,"scenarios","data"); % development artifact folder
 else
     outputFolder = string(outputFolder);
 end
 
-UT = evalin('base','UT');
+vehicle = vehicle_parameters();
 
 %% Track geometry configuration
 
@@ -115,26 +116,8 @@ localSpeedLimit_mps(s_m >= 165) = 6;
 
 %% Vehicle/profile configuration
 
-profile.mass_kg = UT.Mv;
-profile.gravity_mps2 = UT.g;
-profile.road_friction_mu = UT.mu;
-
-profile.air_density_kgpm3 = UT.rho;
-profile.drag_coefficient = UT.Cd;
-profile.frontal_area_m2 = UT.Awind;
-profile.rolling_resistance_coefficient = UT.CRF;
-
-% Replace these with force limits derived from the actual
-% drive-torque and brake-command conventions.
-profile.maximum_drive_force_N = 1800;
-profile.maximum_braking_force_N = 4500;
-
-% Conservative Phase 0 lateral limit
-profile.maximum_lateral_acceleration_mps2 = ...
-    0.35 * profile.gravity_mps2;
-
-profile.initial_speed_mps = 0;
-profile.minimum_speed_for_time_mps = 0.5;
+profile = phase0_profile_parameters( ...
+    vehicle,0,0.35*vehicle.gravity_mps2);
 
 %% Generate three-pass speed profile
 [vx_ref_mps, ...

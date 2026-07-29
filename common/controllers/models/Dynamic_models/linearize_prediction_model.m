@@ -1,5 +1,5 @@
 function [Ad,Bmv,Emd,Ac,Bc,Ec,op] = ...
-    linearize_prediction_model(p)
+    linearize_prediction_model(v, s, c)
 %LINEARIZE_PREDICTION_MODEL
 % Linearizes and discretizes the adapted Kong dynamic bicycle model.
 %
@@ -17,31 +17,31 @@ function [Ad,Bmv,Emd,Ac,Bc,Ec,op] = ...
 
 %% Parameters
 
-Ts  = p.Ts_s;
-m   = p.mass_kg;
-Iz  = p.yaw_inertia_kgm2;
-lf  = p.lf_m;
-lr  = p.lr_m;
-Rw  = p.wheel_radius_m;
-eta = p.drivetrain_efficiency;
+Ts  = s.Ts_s;
+m   = v.mass_kg;
+Iz  = v.yaw_inertia_kgm2;
+lf  = v.lf_m;
+lr  = v.lr_m;
+Rw  = v.wheel_radius_m;
+eta = v.drivetrain_efficiency;
 
-rho = p.air_density_kgpm3;
-Cd  = p.drag_coefficient;
-Af  = p.frontal_area_m2;
-Crr = p.rolling_resistance_coefficient;
-g   = p.gravity_mps2;
+rho = v.air_density_kgpm3;
+Cd  = v.drag_coefficient;
+Af  = v.frontal_area_m2;
+Crr = v.rolling_resistance_coefficient;
+g   = v.gravity_mps2;
 
-Cf = p.Cf_Nprad;
-Cr = p.Cr_Nprad;
+Cf = c.Cf_Nprad;
+Cr = c.Cr_Nprad;
 
-V0 = p.initial_speed_mps;
+V0 = s.initial_speed_mps;
 
 %% Basic validation
 
 assert(Ts > 0, ...
     "Controller sample time must be positive.");
 
-assert(V0 > 0, ...
+assert(V0 >= 0, ...
     "Nominal speed must be greater than zero.");
 
 assert(Cf > 0 && Cr > 0, ...
@@ -70,9 +70,9 @@ op.x = [ ...
 
 op.u = [ ...
     nominal_front_axle_torque_Nm;
-    p.nominal_road_wheel_angle_rad];
+    c.nominal_road_wheel_angle_rad];
 
-op.curvature_1pm = p.nominal_curvature_1pm;
+op.curvature_1pm = c.nominal_curvature_1pm;
 
 %% Continuous longitudinal coefficient
 

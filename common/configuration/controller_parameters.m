@@ -1,24 +1,15 @@
-function controller = controller_parameters(UT)
+function controller = controller_parameters(vehicle, simulation)
 %CONTROLLER_PARAMETERS Parameters for the low-order MPC prediction model.
-%
-% Prediction-model states:
-%   x = [vx; vy; yaw_rate; lateral_error; heading_error]
-%
-% Manipulated inputs:
-%   u = [signed_front_axle_torque; front_road_wheel_angle]
-%
-% Measured disturbance:
-%   d = path_curvature
-%
-% UT contains nominal vehicle data. Values copied into controller.model
-% represent the controller's nominal assumptions.
+
+actuator = actuator_parameters();
 
 %% Execution configuration
 
-controller.Ts_s = UT.Ts_Veh;
-controller.pose_x0_m = 0;
-controller.pose_y0_m = 0;
+controller.Ts_s = simulation.Ts_s;
 controller.integration_substeps = 10;
+
+controller.initial_speed_mps = ...
+    simulation.initial_speed_mps;
 
 %% Initial MPC horizon values in second
 
@@ -26,9 +17,8 @@ controller.prediction_horizon_s = 1.0;
 controller.control_horizon_s = 0.10;
 
 %% Backend selection
-
-controller.BACKEND_MATLAB = 2;
 controller.BACKEND_ACADOS = 1;
+controller.BACKEND_MATLAB = 2;
 controller.BACKEND_ADAPTIVE = 3;
 
 controller.controller_backend = ...
@@ -63,8 +53,7 @@ controller.output_names = controller.state_names;
 
 %% Initial prediction-model state
 
-
-controller.initial_speed_mps = UT.v_ini;
+controller.rolling_resistance_smoothing_speed_mps = 0.10;
 
 controller.initial_state = [ ...
     controller.initial_speed_mps    % vx, m/s
@@ -87,45 +76,24 @@ controller.output_weights = [1 0.1 10 100 100];
 controller.input_weights = [1 1];
 controller.input_rate_weights = [1 0.1];
 
-%% Nominal controller-model vehicle parameters
-
-controller.mass_kg = UT.Mv;
-controller.yaw_inertia_kgm2 = UT.Iz;
-
-controller.lf_m = UT.lf;
-controller.lr_m = UT.lr;
-controller.wheelbase_m = UT.lf + UT.lr;
-
-controller.wheel_radius_m = UT.Rw;
-controller.drivetrain_efficiency = 1.0;
-
-%% Nominal resistance model
-
-controller.gravity_mps2 = UT.g;
-controller.air_density_kgpm3 = UT.rho;
-controller.drag_coefficient = UT.Cd;
-controller.frontal_area_m2 = UT.Awind;
-controller.rolling_resistance_coefficient = UT.CRF;
-
 %% Nominal linearization operating point
 
-rolling_resistance_N = ...
-    controller.rolling_resistance_coefficient ...
-    * controller.mass_kg ...
-    * controller.gravity_mps2;
+rollingResistance_N = ...
+    vehicle.rolling_resistance_coefficient ...
+    * vehicle.mass_kg ...
+    * vehicle.gravity_mps2;
 
-aerodynamic_drag_N = ...
+aerodynamicDrag_N = ...
     0.5 ...
-    * controller.air_density_kgpm3 ...
-    * controller.drag_coefficient ...
-    * controller.frontal_area_m2 ...
+    * vehicle.air_density_kgpm3 ...
+    * vehicle.drag_coefficient ...
+    * vehicle.frontal_area_m2 ...
     * controller.initial_speed_mps^2;
 
-% Total torque across the front axle required for steady straight driving.
+% Total torque across the front axle required for steady straight driving
 controller.nominal_signed_front_axle_torque_Nm = ...
-    controller.wheel_radius_m ...
-    * (rolling_resistance_N + aerodynamic_drag_N) ...
-    / controller.drivetrain_efficiency;
+    vehicle.wheel_radius_m ...
+    * (rollingResistance_N + aerodynamicDrag_N);
 
 controller.nominal_road_wheel_angle_rad = 0;
 controller.nominal_curvature_1pm = 0;
@@ -139,19 +107,16 @@ controller.Cf_Nprad = 160e3; % N/rad
 controller.Cr_Nprad = 180e3; % N/rad
 
 %% Numerical protection
-
 % Prevent division by zero in tire slip-angle calculations.
 controller.minimum_speed_mps = 0.1;
 
 %% Reference definitions
-
 controller.reference_names = [ ...
     "speed_reference_mps"
     "lateral_speed_reference_mps"
     "yaw_rate_reference_radps"
     "lateral_error_reference_m"
     "heading_error_reference_rad"];
-
 
 %% Backend interface
 
@@ -172,34 +137,44 @@ controller.status.SUCCESS = 1;
 controller.status.MAX_ITERATIONS = 0;
 controller.status.FAILURE = -1;
 
-
 %% constraints
 %% Manipulated-variable magnitude limits
 
 % Signed torque
-controller.minimumSignedTorque_Nm = -300;
-controller.maximumSignedTorque_Nm =  300;
+controller.minimumSignedTorque_Nm = ...
+    actuator.minimum_signed_front_axle_torque_Nm;
+controller.maximumSignedTorque_Nm = ...
+    actuator.maximum_signed_front_axle_torque_Nm;
 
 % Front road-wheel angle
-controller.minimumRoadWheelAngle_rad = -0.30;
-controller.maximumRoadWheelAngle_rad =  0.30;
+controller.minimumRoadWheelAngle_rad = ...
+    actuator.minimum_road_wheel_angle_rad;
+controller.maximumRoadWheelAngle_rad = ...
+    actuator.maximum_road_wheel_angle_rad;
 
 %% Manipulated-variable physical rate limits
 %
 % These are continuous rates per second. They will be multiplied
 % by Ts when configuring the MPC object.
 
-controller.minimumSignedTorqueRate_Nmps = -10;
-controller.maximumSignedTorqueRate_Nmps =  10;
+controller.minimumSignedTorqueRate_Nmps = ...
+    actuator.minimum_signed_torque_rate_Nmps;
+controller.maximumSignedTorqueRate_Nmps = ...
+    actuator.maximum_signed_torque_rate_Nmps;
 
-controller.minimumRoadWheelRate_radps = -deg2rad(20);
-controller.maximumRoadWheelRate_radps =  deg2rad(20);
+controller.minimumRoadWheelRate_radps = ...
+    actuator.minimum_road_wheel_rate_radps;
+controller.maximumRoadWheelRate_radps = ...
+    actuator.maximum_road_wheel_rate_radps;
 
 %% State/output constraints
 %
 % State order:
 % [vx, vy, yaw_rate, lateral_error, heading_error]
-controller.maximumSpeed_mps = 12;
+% Covers the 27 m/s highway reference with margin. The supplied plant is
+% annotated around 0, 13, and 20 m/s, so 27 m/s remains an explicit
+% extrapolation that must pass the highway feasibility gate.
+controller.maximumSpeed_mps = 32;
 controller.maximumLateralSpeed_mps = 1.0;
 controller.maximumYawRate_radps = deg2rad(45);
 controller.maximumLateralError_m = 0.5;
