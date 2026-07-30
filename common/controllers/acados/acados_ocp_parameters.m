@@ -44,15 +44,18 @@ assert(all(settings.state_scale > 0));
 assert(all(settings.input_scale > 0));
 
 %% Dimensionless tracking and effort weights
-
+% Q = [1 0.1 10 100 100];
+% R = [1 1];
 stateWeights = controller.output_weights(:);
 inputWeights = controller.input_weights(:);
 
-settings.Q = diag( ...
-    stateWeights ./ settings.state_scale.^2);
-
-settings.R = diag( ...
-    inputWeights ./ settings.input_scale.^2);
+% settings.Q = diag( ...
+%     stateWeights ./ settings.state_scale.^2);
+% 
+% settings.R = diag( ...
+%     inputWeights ./ settings.input_scale.^2);
+settings.Q = diag(stateWeights);
+settings.R = diag(inputWeights);
 
 settings.Q_terminal = settings.Q;
 
@@ -82,21 +85,36 @@ settings.maximum_state = controller.maximumState(:);
 
 settings.slack_penalty = controller.slackPenalty;
 
-%% acados solver choices
+%% acados solver configuration
 
-settings.nlp_solver_type = 'SQP';
-settings.qp_solver = 'PARTIAL_CONDENSING_HPIPM';
-settings.integrator_type = 'ERK';
+% Nonlinear solver
+settings.nlp_solver_type = 'SQP_RTI';   % use 'SQP' for debugging
+
+% Hessian approximation
+% Equivalent to:
+% nlp_solver_exact_hessian = false
 settings.hessian_approximation = 'GAUSS_NEWTON';
-settings.globalization = 'MERIT_BACKTRACKING';
 
+% Numerical integration
+settings.integrator_type = 'ERK';
+settings.integration_stages = 4;
+settings.integration_steps = 3;
+
+% QP solver
+settings.qp_solver = 'PARTIAL_CONDENSING_HPIPM';
+settings.condensing_intervals = min( ...
+    10, ...
+    settings.number_of_intervals);
+
+% NLP tolerances
+settings.nlp_solver_tol_stat = 1e-4;
+settings.nlp_solver_tol_eq   = 1e-4;
+settings.nlp_solver_tol_ineq = 1e-4;
+settings.nlp_solver_tol_comp = 1e-4;
+
+% Mainly relevant when using full SQP
 settings.maximum_nlp_iterations = 50;
 
-settings.integration_stages = 4;
-settings.integration_steps = 1;
-
-settings.condensing_intervals = min( ...
-    5, ...
-    settings.number_of_intervals);
+settings.globalization = 'MERIT_BACKTRACKING';
 
 end

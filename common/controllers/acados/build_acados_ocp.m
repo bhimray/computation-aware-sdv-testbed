@@ -52,13 +52,19 @@ ocp.cost.yref_e = controller.nominal_state;
 
 %% Input magnitude constraints
 
-ocp.model.con_h_expr_0 = model.u;
-ocp.constraints.lh_0 = settings.minimum_input;
-ocp.constraints.uh_0 = settings.maximum_input;
+% ocp.model.con_h_expr_0 = model.u;
+% ocp.constraints.lh_0 = settings.minimum_input;
+% ocp.constraints.uh_0 = settings.maximum_input;
 
-ocp.model.con_h_expr = model.u;
-ocp.constraints.lh = settings.minimum_input;
-ocp.constraints.uh = settings.maximum_input;
+% ocp.model.con_h_expr = model.u;
+% ocp.constraints.lh = settings.minimum_input;
+% ocp.constraints.uh = settings.maximum_input;
+
+%% Native input bounds
+
+ocp.constraints.idxbu = (0:(nu - 1))';
+ocp.constraints.lbu = settings.minimum_input;
+ocp.constraints.ubu = settings.maximum_input;
 
 %% Initial condition
 
@@ -90,6 +96,18 @@ ocp.solver_options.globalization = ...
 
 ocp.solver_options.nlp_solver_max_iter = ...
     settings.maximum_nlp_iterations;
+
+ocp.solver_options.nlp_solver_tol_stat = ...
+    settings.nlp_solver_tol_stat;
+
+ocp.solver_options.nlp_solver_tol_eq = ...
+    settings.nlp_solver_tol_eq;
+
+ocp.solver_options.nlp_solver_tol_ineq = ...
+    settings.nlp_solver_tol_ineq;
+
+ocp.solver_options.nlp_solver_tol_comp = ...
+    settings.nlp_solver_tol_comp;
 
 ocp.solver_options.sim_method_num_stages = ...
     settings.integration_stages;

@@ -25,6 +25,7 @@ pathCurvature = ...
 vx = x(1);
 vy = x(2);
 yawRate = x(3);
+% lateralError = x(4);
 headingError = x(5);
 
 frontAxleTorque = u(1);
