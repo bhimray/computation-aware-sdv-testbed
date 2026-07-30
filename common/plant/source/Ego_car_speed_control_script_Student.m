@@ -33,8 +33,8 @@ UT.Ix  = 606.1;        %kg*m^2   Moment of inertia around the x-axis for X-torqu
 UT.Iy  = 4192;         %kg*m^2   Moment of inertia around the y-axis for Y-torque
 UT.Jw  = 0.9;          %kg*m^2   Polar Moment of inertia around the wheel center
 
-T_ADE = UT.Ts_Veh;
-v_ini = 5;
+% T_ADE = UT.Ts_Veh;
+% v_ini = 5;
 
 % Load Leader Speed 
 % load('Front_car_speed.mat')
@@ -45,5 +45,5 @@ v_ini = 5;
 
 % Initial_dist = 12;
 
-%% Sim
-sim('car_speed_control_Student')
+% %% Sim
+% sim('car_speed_control_Student')
