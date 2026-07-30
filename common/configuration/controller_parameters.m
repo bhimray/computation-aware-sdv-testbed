@@ -22,7 +22,7 @@ controller.BACKEND_MATLAB = 2;
 controller.BACKEND_ADAPTIVE = 3;
 
 controller.controller_backend = ...
-    controller.BACKEND_ADAPTIVE;
+    controller.BACKEND_ACADOS;
 
 %% Prediction-model dimensions
 

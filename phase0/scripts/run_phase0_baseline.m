@@ -20,6 +20,16 @@ controllerParams = config.controller;
 simulationParams = config.simulation;
 adaptiveModelParams = config.adaptiveModel;
 
+%% for Plant simulink model
+UT = legacy_plant_parameters( ...
+    vehicleParams, ...
+    simulationParams);
+
+% Required by MPC_backend_acados
+acadosSettings = acados_ocp_parameters(controllerParams);
+acados_nominal_input = acadosSettings.nominal_input;
+acados_nominal_input = reshape(acados_nominal_input, 2, 1); % acados nominal input
+
 track_ref_table = config.scenario.lookup_table;
 scenario_stop_table = config.scenario.stop_event_table;
 
@@ -28,7 +38,8 @@ scenario_stop_table = config.scenario.stop_event_table;
 switch controllerParams.controller_backend
 
     case controllerParams.BACKEND_ACADOS
-        error("ACADOS backend is not implemented yet.");
+        disp("Running acados controller... ")
+        % error("ACADOS backend is not implemented yet.");
 
     case controllerParams.BACKEND_MATLAB
         error("Fixed linear MATLAB MPC backend is not implemented yet.");
@@ -69,6 +80,12 @@ simInput = simInput.setVariable( ...
 simInput = simInput.setVariable( ...
     "scenario_stop_table", scenario_stop_table);
 
+simInput = simInput.setVariable("UT", UT);
+
+simInput = simInput.setVariable( ...
+    "acados_nominal_input", ...
+    acados_nominal_input);
+
 if controllerParams.controller_backend == ...
         controllerParams.BACKEND_ADAPTIVE
 
@@ -103,7 +120,9 @@ requiredSignals = [ ...
     "yaw_rate_meas"
     "ey_m"
     "epsi_rad"
-    "solve_status"];
+    "solve_status"
+    "solve_time"
+    ];
 
 availableSignals = string(logs.getElementNames);
 
