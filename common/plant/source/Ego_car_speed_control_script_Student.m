@@ -34,7 +34,7 @@ UT.Iy  = 4192;         %kg*m^2   Moment of inertia around the y-axis for Y-torqu
 UT.Jw  = 0.9;          %kg*m^2   Polar Moment of inertia around the wheel center
 
 % T_ADE = UT.Ts_Veh;
-% v_ini = 5;
+UT.v_ini = 5;
 
 % Load Leader Speed 
 % load('Front_car_speed.mat')
