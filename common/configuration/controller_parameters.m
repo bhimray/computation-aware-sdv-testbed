@@ -24,7 +24,7 @@ controller.BACKEND_MATLAB = 2; %% NOT WORKING
 controller.BACKEND_ADAPTIVE = 3;
 
 controller.controller_backend = ...
-    controller.BACKEND_ADAPTIVE;
+    controller.BACKEND_ACADOS;
 
 %% Prediction-model dimensions
 
