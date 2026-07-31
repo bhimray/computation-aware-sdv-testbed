@@ -9,7 +9,7 @@ epsi = x(5);
 Tlong = u(1);
 delta = u(2);
 
-vxSafe = max(vx,p.minimum_speed_mps);
+vxSafe = sqrt(vx^2 + p.minimum_speed_mps^2);
 
 alphaF = ...
     atan2(vy + p.lf_m*r,vxSafe) - delta;

@@ -1,6 +1,6 @@
 function [Ad,Bmv,Emd,Ac,Bc,Ec,op] = ...
     linearize_prediction_model(v, s, c)
-%LINEARIZE_PREDICTION_MODEL
+%LINEARIZE_PREDICTION_MODEL used by ADAPTIVE MPC
 % Linearizes and discretizes the adapted Kong dynamic bicycle model.
 %
 % State order:
@@ -35,13 +35,14 @@ Cf = c.Cf_Nprad;
 Cr = c.Cr_Nprad;
 
 V0 = s.initial_speed_mps;
+Vx_safe = sqrt(V0^2 + c.minimum_speed_mps^2);
 
 %% Basic validation
 
 assert(Ts > 0, ...
     "Controller sample time must be positive.");
 
-assert(V0 >= 0, ...
+assert(Vx_safe >= 0, ...
     "Nominal speed must be greater than zero.");
 
 assert(Cf > 0 && Cr > 0, ...
@@ -52,7 +53,7 @@ assert(Cf > 0 && Cr > 0, ...
 rollingResistance_N = Crr*m*g;
 
 aerodynamicDrag_N = ...
-    0.5*rho*Cd*Af*V0^2;
+    0.5*rho*Cd*Af*Vx_safe^2;
 
 totalResistance_N = ...
     rollingResistance_N + aerodynamicDrag_N;
@@ -62,7 +63,7 @@ nominal_front_axle_torque_Nm = ...
     Rw*totalResistance_N/eta;
 
 op.x = [ ...
-    V0;
+    Vx_safe;
     0;
     0;
     0;
@@ -78,9 +79,9 @@ op.curvature_1pm = c.nominal_curvature_1pm;
 
 % Derivative of:
 % 0.5*rho*Cd*Af*vx*abs(vx)
-% evaluated at positive V0.
+% evaluated at positive Vx_safe.
 dragDerivative_N_per_mps = ...
-    rho*Cd*Af*V0;
+    rho*Cd*Af*Vx_safe;
 
 aV = -dragDerivative_N_per_mps/m;
 
@@ -89,17 +90,17 @@ bTorque = eta/(m*Rw);
 
 %% Continuous lateral coefficients
 
-a22 = -(Cf + Cr)/(m*V0);
+a22 = -(Cf + Cr)/(m*Vx_safe);
 
 a23 = ...
-    (lr*Cr - lf*Cf)/(m*V0) ...
-    - V0;
+    (lr*Cr - lf*Cf)/(m*Vx_safe) ...
+    - Vx_safe;
 
 a32 = ...
-    (lr*Cr - lf*Cf)/(Iz*V0);
+    (lr*Cr - lf*Cf)/(Iz*Vx_safe);
 
 a33 = ...
-    -(lf^2*Cf + lr^2*Cr)/(Iz*V0);
+    -(lf^2*Cf + lr^2*Cr)/(Iz*Vx_safe);
 
 % Kong-model steering gains
 bSteerVy = Cf/m;
@@ -114,7 +115,7 @@ Ac = [ ...
     aV,  0,   0,   0,  0;
     0,  a22, a23,  0,  0;
     0,  a32, a33,  0,  0;
-    0,  1,   0,    0,  V0;
+    0,  1,   0,    0,  Vx_safe;
     0,  0,   1,    0,  0];
 
 %% Continuous manipulated-input matrix
@@ -131,14 +132,14 @@ Bc = [ ...
 
 %% Continuous measured-disturbance matrix
 
-% heading_error_dot = yaw_rate - V0*curvature
+% heading_error_dot = yaw_rate - Vx_safe*curvature
 
 Ec = [ ...
     0;
     0;
     0;
     0;
-   -V0];
+   -Vx_safe];
 
 %% Exact zero-order-hold discretization
 
@@ -172,7 +173,7 @@ Emd = allDiscreteInputs(:, ...
 %% Display operating-point information
 
 fprintf("Prediction model discretized at Ts = %.4f s\n",Ts);
-fprintf("Nominal speed: %.3f m/s\n",V0);
+fprintf("Nominal speed: %.3f m/s\n",Vx_safe);
 fprintf("Total nominal front-axle torque: %.3f N*m\n", ...
     nominal_front_axle_torque_Nm);
 

@@ -10,6 +10,8 @@ controller.integration_substeps = 10;
 
 controller.initial_speed_mps = ...
     simulation.initial_speed_mps;
+%% for adaptive model linearization
+controller.minimum_linearization_speed_mps = 0.5;
 
 %% Initial MPC horizon values in second
 
@@ -18,11 +20,11 @@ controller.control_horizon_s = 0.10;
 
 %% Backend selection
 controller.BACKEND_ACADOS = 1;
-controller.BACKEND_MATLAB = 2;
+controller.BACKEND_MATLAB = 2; %% NOT WORKING
 controller.BACKEND_ADAPTIVE = 3;
 
 controller.controller_backend = ...
-    controller.BACKEND_ACADOS;
+    controller.BACKEND_ADAPTIVE;
 
 %% Prediction-model dimensions
 
@@ -72,7 +74,7 @@ controller.nominal_state = [
     ];
 
 %% weights
-controller.output_weights = [1 0.1 10 100 100];
+controller.output_weights = [1 1 10 100 100] * 0.1;
 controller.input_weights = [1 1];
 controller.input_rate_weights = [1 0.1];
 

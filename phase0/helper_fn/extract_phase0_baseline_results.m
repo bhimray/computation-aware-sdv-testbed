@@ -1,4 +1,5 @@
-function results = extract_phase0_baseline_results(logs)
+function results = ...
+    extract_phase0_baseline_results(logs, solveTimeAvailable)
 
 toColumn = @(data) ...
     reshape(squeeze(double(data)), [], 1);
@@ -14,13 +15,11 @@ yawRateSignal = logs.get("yaw_rate_meas").Values;
 eySignal = logs.get("ey_m").Values;
 headingErrorSignal = logs.get("epsi_rad").Values;
 statusSignal = logs.get("solve_status").Values;
-solveTimeSignal = logs.get("solve_time").Values;
 
 % Tracking errors must be compared at identical controller sample times.
 assertAligned(vxSignal, vxReferenceSignal, "vx_ref");
 assertAligned(vxSignal, eySignal, "ey_m");
 assertAligned(vxSignal, headingErrorSignal, "epsi_rad");
-assertAligned(vxSignal, solveTimeSignal, "solve_time");
 
 results = struct();
 
@@ -34,8 +33,16 @@ results.torque_Nm = toColumn(torqueSignal.Data);
 results.steering_angle_rad = toColumn(steeringSignal.Data);
 results.yaw_rate_radps = toColumn(yawRateSignal.Data);
 results.solve_status = toColumn(statusSignal.Data);
-% Common solve-time telemetry is stored in seconds
-results.solve_time_s = toColumn(solveTimeSignal.Data);
+
+if solveTimeAvailable
+    solveTimeSignal = logs.get("solve_time").Values;
+    assertAligned(vxSignal, solveTimeSignal, "solve_time");
+    results.solve_time_s = toColumn(solveTimeSignal.Data);
+    results.solve_time_time_s = toColumn(solveTimeSignal.Time);
+else
+    results.solve_time_s = zeros(0,1);
+    results.solve_time_time_s = zeros(0,1);
+end
 
 % Tracking-error convention: measured value minus reference value.
 results.ev_mps = results.vx_mps - results.vx_ref_mps;

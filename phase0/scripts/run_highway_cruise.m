@@ -2,4 +2,6 @@
 
 [results, config] = run_phase0_baseline("highway_cruise");
 
-disp(results.solve_time_metrics.summary_table);
+if config.controller.controller_backend == 1
+    disp(results.solve_time_metrics.summary_table);
+end
