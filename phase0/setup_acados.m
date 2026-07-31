@@ -1,0 +1,2 @@
+setup_acados_dependency;
+s_fun_generation_acados;
