@@ -33,7 +33,12 @@ roadWheelAngle = u(2);
 
 %% Tire slip angles
 
-vxSafe = fmax(vx, parameters.minimum_speed_mps);
+
+minimumSpeed = ...
+    parameters.minimum_speed_mps;
+% vxSafe = fmax(vx, parameters.minimum_speed_mps);
+vxSafe = sqrt( ...
+    vx^2 + minimumSpeed^2); %% for v=0, Compensator
 
 frontSlipAngle = ...
     atan2( ...

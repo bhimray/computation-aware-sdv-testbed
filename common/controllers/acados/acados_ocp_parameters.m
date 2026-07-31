@@ -2,7 +2,6 @@ function settings = acados_ocp_parameters(controller)
 %ACADOS_OCP_PARAMETERS Backend-specific OCP configuration.
 
 %% Horizon
-
 settings.sample_time_s = controller.Ts_s;
 settings.prediction_horizon_s = ...
     controller.prediction_horizon_s;

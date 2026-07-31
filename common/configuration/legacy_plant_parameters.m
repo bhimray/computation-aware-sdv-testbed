@@ -29,4 +29,7 @@ UT.Awind = vehicle.frontal_area_m2;
 UT.Vw    = vehicle.wind_speed_mps;
 UT.CRF   = vehicle.rolling_resistance_coefficient;
 UT.mu    = vehicle.default_road_friction_mu;
+
+UT.VSlipMin = ...
+    vehicle.minimum_tire_slip_speed_mps; %% for tire slip at v= 0
 end

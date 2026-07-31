@@ -35,4 +35,6 @@ vehicle.rolling_resistance_coefficient = 0.03;
 vehicle.default_road_friction_mu = 0.80;
 
 vehicle.drivetrain_efficiency = 1; %no loss
+vehicle.minimum_tire_slip_speed_mps = 0.10; %% Low-speed numerical protection
+
 end
