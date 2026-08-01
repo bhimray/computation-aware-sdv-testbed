@@ -9,6 +9,7 @@ simulation.initial_yaw_rad = scenario.psi_ref_rad(1);
 simulation.initial_speed_mps = scenario.initial_speed_mps;
 
 simulation.stop_time_s = scenario.simulation_stop_time_s;
-simulation.road_friction_mu = scenario.road_friction_mu;
+% simulation.road_friction_mu = scenario.road_friction_mu; %% used using
+% environment var
 simulation.slope_rad = scenario.slope_rad;
 end

@@ -1,7 +1,18 @@
-%% Run Phase 0 highway-cruise scenario
+function [results, config] = ...
+    run_highway_cruise(environmentName)
 
-[results, config] = run_phase0_baseline("highway_cruise");
+arguments
+    environmentName (1,1) string = "dry_road"
+end
 
-if config.controller.controller_backend == 1
+[results, config] = run_phase0_baseline( ...
+    "highway_cruise", ...
+    environmentName);
+
+if config.controller.controller_backend == ...
+        config.controller.BACKEND_ACADOS
+
     disp(results.solve_time_metrics.summary_table);
+end
+
 end

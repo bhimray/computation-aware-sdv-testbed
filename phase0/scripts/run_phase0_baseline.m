@@ -1,9 +1,10 @@
-function [results, config] = run_phase0_baseline(scenarioName)
-%RUN_PHASE0_BASELINE Phase 0 closed-loop scenario.
+function [results, config] = run_phase0_baseline( ...
+    scenarioName, ...
+    environmentName)
 
 arguments
-    % defining default value for the arguments
-    scenarioName (1,1) string = "highway_cruise"
+    scenarioName (1,1) string
+    environmentName (1,1) string = "dry_road"
 end
 
 startup_project;
@@ -33,6 +34,26 @@ acados_nominal_input = reshape(acados_nominal_input, 2, 1); % acados nominal inp
 track_ref_table = config.scenario.lookup_table;
 scenario_stop_table = config.scenario.stop_event_table;
 final_track_index = size(track_ref_table, 1);
+
+%% Configure environment
+
+environmentName = lower(environmentName);
+
+simulationStopTime_s = ...
+    simulationParams.stop_time_s;
+
+environment = load_env_profile( ...
+    environmentName, ...
+    simulationStopTime_s, ...
+    FrictionDropTime_s=10);
+
+roadFrictionProfile = ...
+    environment.road_friction_profile;
+
+% Save plain metadata without the live timeseries object.
+config.environment = rmfield( ...
+    environment, ...
+    'road_friction_profile');
 
 %% Configure selected controller backend
 
@@ -102,6 +123,10 @@ simInput = simInput.setModelParameter( ...
     ReturnWorkspaceOutputs="on", ...
     SignalInfNanChecking="error");
 
+simInput = simInput.setVariable( ...
+    "roadFrictionProfile", ...
+    roadFrictionProfile);
+
 %% Run simulation
 
 simulationOutput = sim(simInput);
@@ -127,6 +152,7 @@ requiredSignals = [ ...
     "epsi_rad"
     "solve_status"
     "solve_time"
+    "road_friction_mu"
     ];
 
 availableSignals = string(logs.getElementNames);
@@ -147,8 +173,7 @@ results = extract_phase0_baseline_results( ...
     logs, ...
     solveTimeAvailable);
 
-%% Add reproducibility metadata
-
+%% add reproducibility metadata
 results.metadata.scenario_name = scenarioName;
 results.metadata.matlab_version = string(version);
 results.metadata.generated_at_utc = ...
@@ -157,12 +182,30 @@ results.metadata.controller_backend = ...
     controllerParams.controller_backend;
 results.metadata.scenario_schema_version = ...
     config.scenario.schema_version;
+results.metadata.environment_name = ...
+    environmentName;
+results.metadata.environment_schema_version = ...
+    environment.schema_version;
+
+results.metadata.environment_event_type = ...
+    environment.event_type;
+
+results.metadata.environment_event_time_s = ...
+    environment.event_time_s;
 
 %% Save deterministic deliverable
 
 projectRoot = string(matlab.project.currentProject().RootFolder);
-resultsFolder = fullfile(projectRoot, "phase0", "results", controllerName(controllerParams), scenarioName);
-figuresFolder = fullfile(projectRoot, "phase0", "figures", controllerName(controllerParams), scenarioName);
+resultsFolder = fullfile(projectRoot, "phase0", "results", ...
+    controllerName(controllerParams), ...
+    scenarioName, ...
+    environmentName ...
+    );
+figuresFolder = fullfile(projectRoot, "phase0", "figures", ...
+    controllerName(controllerParams), ...
+    scenarioName, ...
+    environmentName ...
+    );
 
 if ~isfolder(resultsFolder)
     mkdir(resultsFolder);

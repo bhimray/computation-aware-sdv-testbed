@@ -65,6 +65,22 @@ end
 
 check_runtime_requirements(controller);
 
-run_urban_profile;
-run_aggressive_maneuver;
-run_highway_cruise;
+%% execute simulation for 3 different scenario with 3 different road condition, total 9 simulation
+%% Run three scenarios under three environment conditions
+
+environmentNames = [
+    "dry_road"
+    "low_friction_road"
+    "sudden_friction_drop"
+    ];
+
+for environmentName = environmentNames.'
+
+    fprintf( ...
+        "\nRunning environment: %s\n", ...
+        environmentName);
+
+    run_highway_cruise(environmentName);
+    run_urban_profile(environmentName);
+    run_aggressive_maneuver(environmentName);
+end

@@ -15,6 +15,7 @@ yawRateSignal = logs.get("yaw_rate_meas").Values;
 eySignal = logs.get("ey_m").Values;
 headingErrorSignal = logs.get("epsi_rad").Values;
 statusSignal = logs.get("solve_status").Values;
+frictionSignal = logs.get("road_friction_mu").Values;
 
 % Tracking errors must be compared at identical controller sample times.
 assertAligned(vxSignal, vxReferenceSignal, "vx_ref");
@@ -33,6 +34,12 @@ results.torque_Nm = toColumn(torqueSignal.Data);
 results.steering_angle_rad = toColumn(steeringSignal.Data);
 results.yaw_rate_radps = toColumn(yawRateSignal.Data);
 results.solve_status = toColumn(statusSignal.Data);
+results.road_friction_time_s = ...
+    toColumn(frictionSignal.Time);
+
+results.road_friction_mu = ...
+    toColumn(frictionSignal.Data);
+
 
 if solveTimeAvailable
     solveTimeSignal = logs.get("solve_time").Values;
