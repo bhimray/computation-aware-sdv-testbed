@@ -1,5 +1,5 @@
 function [figureHandle, metrics] = ...
-    plot_phase0_tracking_errors(results, scenario)
+    plot_phase0_tracking_errors(results, scenario, environmentName)
 %PLOT_PHASE0_TRACKING_ERRORS Plot e_v, e_y, and e_psi with metrics.
 
 time = results.time_s;
@@ -25,6 +25,8 @@ metrics.heading_rmse_deg = rad2deg(metrics.heading_rmse_rad);
 metrics.heading_peak_deg = rad2deg(metrics.heading_peak_rad);
 
 scenarioTitle = replace(string(scenario.name), "_", " ");
+environmentName = replace(string(environmentName), "_", " ");
+
 
 figureHandle = figure( ...
     Name="Phase 0 tracking errors: " + scenarioTitle, ...
@@ -52,7 +54,6 @@ ylabel("e_v (m/s)");
 title(sprintf( ...
     "Speed error: RMS %.3f m/s, peak %.3f m/s", ...
     metrics.speed_rmse_mps, metrics.speed_peak_mps));
-legend(Location="best");
 
 %% Lateral path-tracking error
 
@@ -92,7 +93,7 @@ title(sprintf( ...
     metrics.heading_rmse_deg, metrics.heading_peak_deg));
 legend(Location="best");
 
-title(layout, "Tracking Errors: " + scenarioTitle);
+title(layout, "Tracking Errors: " + scenarioTitle + " — " + environmentName);
 
 end
 

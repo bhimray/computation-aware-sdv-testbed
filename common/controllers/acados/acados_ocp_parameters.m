@@ -48,13 +48,13 @@ assert(all(settings.input_scale > 0));
 stateWeights = controller.output_weights(:);
 inputWeights = controller.input_weights(:);
 
-% settings.Q = diag( ...
-%     stateWeights ./ settings.state_scale.^2);
-% 
-% settings.R = diag( ...
-%     inputWeights ./ settings.input_scale.^2);
-settings.Q = diag(stateWeights);
-settings.R = diag(inputWeights);
+settings.Q = diag( ...
+    stateWeights ./ settings.state_scale.^2);
+
+settings.R = diag( ...
+    inputWeights ./ settings.input_scale.^2);
+% settings.Q = diag(stateWeights);
+% settings.R = diag(inputWeights);
 
 settings.Q_terminal = settings.Q;
 
@@ -87,7 +87,7 @@ settings.slack_penalty = controller.slackPenalty;
 %% acados solver configuration
 
 % Nonlinear solver
-settings.nlp_solver_type = 'SQP_RTI';   % use 'SQP' for debugging
+settings.nlp_solver_type = 'SQP';   % use 'SQP_RTI'/'SQP' for debugging
 
 % Hessian approximation
 % Equivalent to:
@@ -112,7 +112,7 @@ settings.nlp_solver_tol_ineq = 1e-4;
 settings.nlp_solver_tol_comp = 1e-4;
 
 % Mainly relevant when using full SQP
-settings.maximum_nlp_iterations = 50;
+settings.maximum_nlp_iterations = 5;
 
 settings.globalization = 'MERIT_BACKTRACKING';
 

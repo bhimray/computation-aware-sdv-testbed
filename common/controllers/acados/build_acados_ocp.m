@@ -66,6 +66,87 @@ ocp.constraints.idxbu = (0:(nu - 1))';
 ocp.constraints.lbu = settings.minimum_input;
 ocp.constraints.ubu = settings.maximum_input;
 
+%% Soft state constraints: intermediate nodes
+
+constrainedStateIndices = [3; 4];
+
+pathStateMinimum = [
+    settings.minimum_state(4)   % e_y minimum, m
+    settings.minimum_state(5)   % e_psi minimum, rad
+    ];
+pathStateMaximum = [
+    settings.maximum_state(4)   % e_y maximum, m
+    settings.maximum_state(5)   % e_psi maximum, rad
+    ];
+
+%% Intermediate stages
+
+ocp.constraints.idxbx = constrainedStateIndices;
+ocp.constraints.lbx = pathStateMinimum;
+ocp.constraints.ubx = pathStateMaximum;
+ocp.constraints.idxsbx = [0; 1];
+slackPenalty = ...
+    settings.slack_penalty * ones(2, 1);
+ocp.cost.Zl = slackPenalty;
+ocp.cost.Zu = slackPenalty;
+ocp.cost.zl = zeros(2, 1);
+ocp.cost.zu = zeros(2, 1);
+
+% % Terminal stage
+% % commenting terminal constraint because it solver throws status 4 (infeasible solution)
+% ocp.constraints.idxbx_e = constrainedStateIndices;
+% ocp.constraints.lbx_e = pathStateMinimum;
+% ocp.constraints.ubx_e = pathStateMaximum;
+% 
+% ocp.constraints.idxsbx_e = [0; 1];
+% 
+% ocp.cost.Zl_e = slackPenalty;
+% ocp.cost.Zu_e = slackPenalty;
+% ocp.cost.zl_e = zeros(2, 1);
+% ocp.cost.zu_e = zeros(2, 1);
+
+% stateBoundIndices = (0:(nx - 1))';
+% ocp.constraints.lbx = ...
+%     settings.minimum_state;
+% 
+% ocp.constraints.ubx = ...
+%     settings.maximum_state;
+
+% % idxsbx indexes the entries in idxbx that are softened.
+% ocp.constraints.idxsbx = ...
+%     stateBoundIndices;
+% 
+% stateSlackPenalty = ...
+%     settings.slack_penalty * ones(nx,1);
+
+% % Quadratic slack penalties.
+% ocp.cost.Zl = stateSlackPenalty;
+% ocp.cost.Zu = stateSlackPenalty;
+% 
+% % No additional linear slack penalty.
+% ocp.cost.zl = zeros(nx,1);
+% ocp.cost.zu = zeros(nx,1);
+
+% %% Soft state constraints: terminal node
+% 
+% ocp.constraints.idxbx_e = ...
+%     stateBoundIndices;
+% 
+% ocp.constraints.lbx_e = ...
+%     settings.minimum_state;
+% 
+% ocp.constraints.ubx_e = ...
+%     settings.maximum_state;
+% 
+% ocp.constraints.idxsbx_e = ...
+%     stateBoundIndices;
+% 
+% ocp.cost.Zl_e = stateSlackPenalty;
+% ocp.cost.Zu_e = stateSlackPenalty;
+% 
+% ocp.cost.zl_e = zeros(nx,1);
+% ocp.cost.zu_e = zeros(nx,1);
+
 %% Initial condition
 
 ocp.constraints.x0 = controller.initial_state;

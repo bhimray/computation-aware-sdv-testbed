@@ -80,7 +80,7 @@ for environmentName = environmentNames.'
         "\nRunning environment: %s\n", ...
         environmentName);
 
+    % run_urban_profile(environmentName);
     run_highway_cruise(environmentName);
-    run_urban_profile(environmentName);
     run_aggressive_maneuver(environmentName);
 end

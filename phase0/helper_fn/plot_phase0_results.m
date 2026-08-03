@@ -1,4 +1,4 @@
-function figureHandle = plot_phase0_results(results, scenario)
+function figureHandle = plot_phase0_results(results, scenario, environmentName)
 %PLOT_PHASE0_RESULTS Plot one Phase 0 closed-loop simulation.
 
 %% Prepare plot variables
@@ -141,9 +141,10 @@ legend(Location="best");
 hold off;
 
 scenarioTitle = replace(string(scenario.name), "_", " ");
+environmentName = replace(string(environmentName), "_", " ");
 
 title( ...
     layout, ...
-    "MPC Closed-Loop Results: " + scenarioTitle);
+    "MPC Closed-Loop Results: " + scenarioTitle + " — " + environmentName);
 
 end

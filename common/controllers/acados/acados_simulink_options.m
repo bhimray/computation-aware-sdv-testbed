@@ -33,6 +33,7 @@ end
 options.outputs.u0 = 1; % true
 options.outputs.solver_status = 1;
 options.outputs.CPU_time = 1;
+options.outputs.slack_values = 1;
 
 options.generate_simulink_block = 1;
 options.show_port_info = 1;

@@ -1,6 +1,6 @@
 function [figureHandle, metrics] = ...
     plot_phase0_solve_time( ...
-        results, scenario, controlSampleTime_s)
+        results, scenario, environmentName, controlSampleTime_s)
 %PLOT_PHASE0_SOLVE_TIME Plot solve-time histogram and calculate metrics.
 %
 % Raw solve time is stored in seconds. The figure and report table use
@@ -106,8 +106,9 @@ ylabel("Number of control steps");
 
 scenarioTitle = replace( ...
     string(scenario.name), "_", " ");
+environmentName = replace(string(environmentName), "_", " ");
 
 title( ...
-    "MPC Solve-Time Distribution: " + scenarioTitle);
+    "MPC Solve-Time Distribution: " + scenarioTitle +", " + environmentName);
 
 end

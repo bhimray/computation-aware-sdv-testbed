@@ -16,7 +16,7 @@ controller.minimum_linearization_speed_mps = 0.5;
 %% Initial MPC horizon values in second
 
 controller.prediction_horizon_s = 1.0;
-controller.control_horizon_s = 0.10;
+controller.control_horizon_s = 0.50;
 
 %% Backend selection
 controller.BACKEND_ACADOS = 1;
@@ -74,9 +74,9 @@ controller.nominal_state = [
     ];
 
 %% weights
-controller.output_weights = [1 1 10 100 100] * 0.1;
-controller.input_weights = [1 1];
-controller.input_rate_weights = [1 0.1];
+controller.output_weights = [1 2 0.1 1000 1000];
+controller.input_weights = [1 0.1];
+controller.input_rate_weights = [0.1 0.1];
 
 %% Nominal linearization operating point
 
@@ -179,8 +179,8 @@ controller.maximumRoadWheelRate_radps = ...
 controller.maximumSpeed_mps = 32;
 controller.maximumLateralSpeed_mps = 1.0;
 controller.maximumYawRate_radps = deg2rad(45);
-controller.maximumLateralError_m = 0.5;
-controller.maximumHeadingError_rad = deg2rad(15);
+controller.maximumLateralError_m = 0.8;
+controller.maximumHeadingError_rad = deg2rad(45);
 
 controller.minimumState = [
     0                         % vx, m/s
@@ -204,6 +204,6 @@ controller.maximumState = [
 controller.stateConstraintECR = ones(5,1);
 
 % Penalty applied to constraint violation.
-controller.slackPenalty = 1e8;
+controller.slackPenalty = 1e1;
 
 end
