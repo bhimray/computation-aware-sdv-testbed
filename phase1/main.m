@@ -68,11 +68,11 @@ check_runtime_requirements(controller);
 
 environmentNames = [
     "dry_road"
-    % "low_friction_road"    actuationDelay_s ...
+    % "low_friction_road"
 
     % "sudden_friction_drop"
     ];
-for actuation_delay_ms = 0:10:100
+for actuation_delay_ms = 0:5:100
     actuation_delay_s = actuation_delay_ms * 1e-3;
     for environmentName = environmentNames.'
         fprintf( ...
