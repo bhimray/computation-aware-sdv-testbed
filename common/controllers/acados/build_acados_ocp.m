@@ -1,7 +1,19 @@
 function [ocp, metadata] = ...
     build_acados_ocp( ...
         modelParameters, controller, generateSimulinkBlock)
-%BUILD_ACADOS_OCP
+%BUILD_ACADOS_OCP Construct the nonlinear acados OCP.
+%
+% States:
+%   x = [vx; vy; yaw_rate; lateral_error; heading_error]
+%
+% Inputs:
+%   u = [front_axle_torque; road_wheel_angle]
+%
+% The generated solver always enforces input magnitude limits.
+% Intermediate and terminal state constraints can be independently enabled
+% using the switches defined below.
+
+%% Backend parameters and prediction model
 
 settings = acados_ocp_parameters(controller);
 
@@ -10,16 +22,32 @@ settings = acados_ocp_parameters(controller);
 
 nx = 5;
 nu = 2;
-N = settings.number_of_intervals;
+N  = settings.number_of_intervals;
 
-%% OCP object
+assert(numel(controller.initial_state) == nx);
+assert(numel(controller.nominal_state) == nx);
+assert(numel(settings.nominal_input) == nu);
+
+%% Constraint-selection switches
+%
+% Keep both disabled while diagnosing unconstrained controller behavior.
+% Changing either switch requires regenerating the acados solver.
+
+enableIntermediateStateConstraints = ...
+    controller.enableIntermediateStateConstraints;
+
+enableTerminalStateConstraints = ...
+    controller.enableTerminalStateConstraints;
+
+%% Create OCP
 
 ocp = AcadosOcp();
 ocp.model = model;
 
-%% Initial-stage cost
-% The state is fixed by the initial-condition constraint, so only penalize
-% input effort at stage zero.
+%% Stage-zero cost
+%
+% The state at stage zero is fixed using lbx_0 = ubx_0 = measuredState.
+% Therefore, only the stage-zero input is penalized here.
 
 ocp.cost.cost_type_0 = 'NONLINEAR_LS';
 ocp.model.cost_y_expr_0 = model.u;
@@ -27,6 +55,11 @@ ocp.cost.W_0 = settings.R;
 ocp.cost.yref_0 = settings.nominal_input;
 
 %% Intermediate-stage cost
+%
+% Cost output:
+%   y_k = [x_k; u_k]
+%
+% The runtime S-function y_ref input replaces the default reference below.
 
 ocp.cost.cost_type = 'NONLINEAR_LS';
 
@@ -44,6 +77,8 @@ ocp.cost.yref = [
     ];
 
 %% Terminal cost
+%
+% Only the terminal state is penalized.
 
 ocp.cost.cost_type_e = 'NONLINEAR_LS';
 ocp.model.cost_y_expr_e = model.x;
@@ -51,123 +86,133 @@ ocp.cost.W_e = settings.Q_terminal;
 ocp.cost.yref_e = controller.nominal_state;
 
 %% Input magnitude constraints
-
-% ocp.model.con_h_expr_0 = model.u;
-% ocp.constraints.lh_0 = settings.minimum_input;
-% ocp.constraints.uh_0 = settings.maximum_input;
-
-% ocp.model.con_h_expr = model.u;
-% ocp.constraints.lh = settings.minimum_input;
-% ocp.constraints.uh = settings.maximum_input;
-
-%% Native input bounds
+%
+% These are hard constraints applied throughout the prediction horizon.
+%
+%   minimum_input <= u_k <= maximum_input
 
 ocp.constraints.idxbu = (0:(nu - 1))';
 ocp.constraints.lbu = settings.minimum_input;
 ocp.constraints.ubu = settings.maximum_input;
 
-%% Soft state constraints: intermediate nodes
+%% Optional soft path-state constraints
+%
+% acados uses zero-based state indices:
+%
+%   x(3) in acados -> MATLAB state 4 -> lateral error
+%   x(4) in acados -> MATLAB state 5 -> heading error
+%
+% idxsbx indexes entries within idxbx, not the complete state vector.
 
-constrainedStateIndices = [3; 4];
+if enableIntermediateStateConstraints || ...
+        enableTerminalStateConstraints
 
-pathStateMinimum = [
-    settings.minimum_state(4)   % e_y minimum, m
-    settings.minimum_state(5)   % e_psi minimum, rad
-    ];
-pathStateMaximum = [
-    settings.maximum_state(4)   % e_y maximum, m
-    settings.maximum_state(5)   % e_psi maximum, rad
-    ];
+    constrainedStateIndices = [3; 4];
+    softenedBoundIndices = [0; 1];
 
-%% Intermediate stages
+    pathStateMinimum = [
+        settings.minimum_state(4)   % Minimum lateral error, m
+        settings.minimum_state(5)   % Minimum heading error, rad
+        ];
 
-ocp.constraints.idxbx = constrainedStateIndices;
-ocp.constraints.lbx = pathStateMinimum;
-ocp.constraints.ubx = pathStateMaximum;
-ocp.constraints.idxsbx = [0; 1];
-slackPenalty = ...
-    settings.slack_penalty * ones(2, 1);
-ocp.cost.Zl = slackPenalty;
-ocp.cost.Zu = slackPenalty;
-ocp.cost.zl = zeros(2, 1);
-ocp.cost.zu = zeros(2, 1);
+    pathStateMaximum = [
+        settings.maximum_state(4)   % Maximum lateral error, m
+        settings.maximum_state(5)   % Maximum heading error, rad
+        ];
 
-% % Terminal stage
-% % commenting terminal constraint because it solver throws status 4 (infeasible solution)
-% ocp.constraints.idxbx_e = constrainedStateIndices;
-% ocp.constraints.lbx_e = pathStateMinimum;
-% ocp.constraints.ubx_e = pathStateMaximum;
-% 
-% ocp.constraints.idxsbx_e = [0; 1];
-% 
-% ocp.cost.Zl_e = slackPenalty;
-% ocp.cost.Zu_e = slackPenalty;
-% ocp.cost.zl_e = zeros(2, 1);
-% ocp.cost.zu_e = zeros(2, 1);
+    slackPenalty = [
+        settings.slack_penalty_ey
+        settings.slack_penalty_epsi
+        ];
 
-% stateBoundIndices = (0:(nx - 1))';
-% ocp.constraints.lbx = ...
-%     settings.minimum_state;
-% 
-% ocp.constraints.ubx = ...
-%     settings.maximum_state;
+    % An enabled soft constraint must have a positive penalty. A zero
+    % penalty leaves the associated slack variable unregularized.
+    assert( ...
+        all(slackPenalty > 0), ...
+        "Enabled soft constraints require positive slack penalties.");
+end
 
-% % idxsbx indexes the entries in idxbx that are softened.
-% ocp.constraints.idxsbx = ...
-%     stateBoundIndices;
-% 
-% stateSlackPenalty = ...
-%     settings.slack_penalty * ones(nx,1);
+%% Optional intermediate-state constraints
+%
+% When enabled, these constraints are applied at intermediate prediction
+% nodes. They are softened using separate lower and upper slacks:
+%
+%   stateMinimum - lowerSlack <= state
+%   state <= stateMaximum + upperSlack
 
-% % Quadratic slack penalties.
-% ocp.cost.Zl = stateSlackPenalty;
-% ocp.cost.Zu = stateSlackPenalty;
-% 
-% % No additional linear slack penalty.
-% ocp.cost.zl = zeros(nx,1);
-% ocp.cost.zu = zeros(nx,1);
+if enableIntermediateStateConstraints
 
-% %% Soft state constraints: terminal node
-% 
-% ocp.constraints.idxbx_e = ...
-%     stateBoundIndices;
-% 
-% ocp.constraints.lbx_e = ...
-%     settings.minimum_state;
-% 
-% ocp.constraints.ubx_e = ...
-%     settings.maximum_state;
-% 
-% ocp.constraints.idxsbx_e = ...
-%     stateBoundIndices;
-% 
-% ocp.cost.Zl_e = stateSlackPenalty;
-% ocp.cost.Zu_e = stateSlackPenalty;
-% 
-% ocp.cost.zl_e = zeros(nx,1);
-% ocp.cost.zu_e = zeros(nx,1);
+    ocp.constraints.idxbx = ...
+        constrainedStateIndices;
 
-%% Initial condition
+    ocp.constraints.lbx = ...
+        pathStateMinimum;
+
+    ocp.constraints.ubx = ...
+        pathStateMaximum;
+
+    ocp.constraints.idxsbx = ...
+        softenedBoundIndices;
+
+    % Quadratic penalties on lower and upper constraint violations.
+    ocp.cost.Zl = slackPenalty;
+    ocp.cost.Zu = slackPenalty;
+
+    % No additional linear slack penalties.
+    ocp.cost.zl = zeros(2,1);
+    ocp.cost.zu = zeros(2,1);
+end
+
+%% Optional terminal-state constraints
+%
+% Terminal constraints are disabled by default because they previously
+% caused QP solver status 4. Re-enable only after the unconstrained and
+% intermediate-constrained controllers solve reliably.
+
+if enableTerminalStateConstraints
+
+    ocp.constraints.idxbx_e = ...
+        constrainedStateIndices;
+
+    ocp.constraints.lbx_e = ...
+        pathStateMinimum;
+
+    ocp.constraints.ubx_e = ...
+        pathStateMaximum;
+
+    ocp.constraints.idxsbx_e = ...
+        softenedBoundIndices;
+
+    ocp.cost.Zl_e = slackPenalty;
+    ocp.cost.Zu_e = slackPenalty;
+
+    ocp.cost.zl_e = zeros(2,1);
+    ocp.cost.zu_e = zeros(2,1);
+end
+
+%% Default initial condition
+%
+% The generated S-function runtime inputs lbx_0 and ubx_0 replace this
+% default with the current measured state.
 
 ocp.constraints.x0 = controller.initial_state;
 
-%% Online curvature parameter
+%% Online model parameter
+%
+% Reference-path curvature is the single online model parameter.
 
 ocp.parameter_values = 0;
 
-%% Solver configuration
+%% Prediction horizon
 
 ocp.solver_options.N_horizon = N;
-ocp.solver_options.tf = settings.prediction_horizon_s;
+ocp.solver_options.tf = ...
+    settings.prediction_horizon_s;
+
+%% NLP solver configuration
 
 ocp.solver_options.nlp_solver_type = ...
     settings.nlp_solver_type;
-
-ocp.solver_options.qp_solver = ...
-    settings.qp_solver;
-
-ocp.solver_options.integrator_type = ...
-    settings.integrator_type;
 
 ocp.solver_options.hessian_approx = ...
     settings.hessian_approximation;
@@ -190,18 +235,37 @@ ocp.solver_options.nlp_solver_tol_ineq = ...
 ocp.solver_options.nlp_solver_tol_comp = ...
     settings.nlp_solver_tol_comp;
 
+%% Numerical integration
+
+ocp.solver_options.integrator_type = ...
+    settings.integrator_type;
+
 ocp.solver_options.sim_method_num_stages = ...
     settings.integration_stages;
 
 ocp.solver_options.sim_method_num_steps = ...
     settings.integration_steps;
 
+%% QP solver configuration
+
+ocp.solver_options.qp_solver = ...
+    settings.qp_solver;
+
 ocp.solver_options.qp_solver_cond_N = ...
     settings.condensing_intervals;
 
-ocp.solver_options.ext_fun_compile_flags = '-O2';
+%% Warm-start configuration
 
-%% Generated-code location
+ocp.solver_options.nlp_solver_warm_start_first_qp = true;
+
+ocp.solver_options.nlp_solver_warm_start_first_qp_from_nlp = ...
+    true;
+
+ocp.solver_options.qp_solver_warm_start = 2;
+
+%% Generated-code configuration
+
+ocp.solver_options.ext_fun_compile_flags = '-O2';
 
 acadosFolder = fileparts(mfilename('fullpath'));
 controllersFolder = fileparts(acadosFolder);
@@ -220,6 +284,8 @@ ocp.code_gen_opts.code_export_directory = ...
 ocp.code_gen_opts.json_file = fullfile( ...
     generatedDirectory, ...
     [model.name, '.json']);
+
+%% Simulink interface
 
 if generateSimulinkBlock
     ocp.simulink_opts = ...

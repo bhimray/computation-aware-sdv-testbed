@@ -43,19 +43,9 @@ assert(all(settings.state_scale > 0));
 assert(all(settings.input_scale > 0));
 
 %% Dimensionless tracking and effort weights
-% Q = [1 0.1 10 100 100];
-% R = [1 1];
-stateWeights = controller.output_weights(:);
-inputWeights = controller.input_weights(:);
 
-settings.Q = diag( ...
-    stateWeights ./ settings.state_scale.^2);
-
-settings.R = diag( ...
-    inputWeights ./ settings.input_scale.^2);
-% settings.Q = diag(stateWeights);
-% settings.R = diag(inputWeights);
-
+settings.Q = diag(controller.output_weights);
+settings.R = diag(controller.input_weights);
 settings.Q_terminal = settings.Q;
 
 %% Nominal input reference
@@ -82,7 +72,8 @@ settings.maximum_input = [
 settings.minimum_state = controller.minimumState(:);
 settings.maximum_state = controller.maximumState(:);
 
-settings.slack_penalty = controller.slackPenalty;
+settings.slack_penalty_ey = controller.slackPenalty_ey;
+settings.slack_penalty_epsi = controller.slackPenalty_epsi;
 
 %% acados solver configuration
 

@@ -20,7 +20,7 @@ options.inputs.parameter_traj = 1;
 options.inputs.y_ref = 1;
 options.inputs.y_ref_e = 1;
 options.inputs.pi_init = 1;
-options.inputs.ignore_inits = 0;
+options.inputs.ignore_inits = 1;
 
 % Disable every default output.
 outputNames = fieldnames(options.outputs);
@@ -33,7 +33,16 @@ end
 options.outputs.u0 = 1; % true
 options.outputs.solver_status = 1;
 options.outputs.CPU_time = 1;
-options.outputs.slack_values = 1;
+options.outputs.CPU_time_sim = 1;
+options.outputs.CPU_time_qp = 1;
+options.outputs.CPU_time_lin = 1;
+hasSoftStateConstraints = ...
+    controller.enableIntermediateStateConstraints || ...
+    controller.enableTerminalStateConstraints;
+
+% A zero-dimensional slack output is invalid in Simulink.
+options.outputs.slack_values = ...
+    double(hasSoftStateConstraints);
 
 options.generate_simulink_block = 1;
 options.show_port_info = 1;
