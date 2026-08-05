@@ -13,8 +13,8 @@ arguments
     results (1,1) struct = struct()
 
     options.Completed (1,1) logical = true
-    options.ErrorIdentifier (1,1) string = "unknown"
-    options.ErrorMessage (1,1) string = "unknown error"
+    options.ErrorIdentifier (1,1) string = ""
+    options.ErrorMessage (1,1) string = ""
 end
 
 % Defaults for a failed or incomplete simulation.

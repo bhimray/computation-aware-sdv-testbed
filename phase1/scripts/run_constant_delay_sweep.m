@@ -4,7 +4,7 @@ function [summaryTable, sweepFigure] = ...
 
 arguments
     options.ScenarioNames (1,:) string = ...
-        ["urban_profile", "aggressive_maneuver"]
+        ["urban_profile", "aggressive_maneuver", "highway_cruise"]
 
     options.EnvironmentName (1,1) string = "dry_road"
 
@@ -27,20 +27,21 @@ for delay_ms = options.Delay_ms
     delay_s = delay_ms * 1e-3;
 
     for scenarioName = options.ScenarioNames
-
+        % for log file
         fprintf( ...
             "\nScenario: %s, delay: %.1f ms\n", ...
             scenarioName, ...
             delay_ms);
 
         try
+            % as usual run files which run simulink from here
             [results, ~] = run_phase1_baseline( ...
                 scenarioName, ...
                 options.EnvironmentName, ...
                 delay_s, ...
                 SaveResults=true, ...
-                SaveFigures=false, ...
-                ShowFigures=false);
+                SaveFigures=false, ... % to save figures
+                ShowFigures=false);    % to show figures looping simulation
 
             newRow = sdv.metrics.createDelaySweepRow( ...
                 scenarioName, ...
@@ -49,6 +50,7 @@ for delay_ms = options.Delay_ms
                 results);
 
         catch simulationError
+            % error will be saved in log files
             warning( ...
                 "SDV:DelaySweepRunFailed", ...
                 "Scenario %s failed at %.1f ms:\n%s", ...
@@ -67,7 +69,8 @@ for delay_ms = options.Delay_ms
                 ErrorMessage=string( ...
                     simulationError.message));
         end
-
+        
+        % after creating row save it in table
         if isempty(summaryTable)
             summaryTable = newRow;
         else
@@ -86,6 +89,7 @@ for delay_ms = options.Delay_ms
     end
 end
 
+%% after all delay and scenario simulation finish for one environment (i.e. friction)
 sweepFigure = plotDelaySweepMetrics(summaryTable);
 
 projectRoot = string( ...

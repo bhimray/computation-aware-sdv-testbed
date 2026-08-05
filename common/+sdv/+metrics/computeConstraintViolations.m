@@ -23,7 +23,7 @@ metrics.sample_count = numel(anyViolation);
 metrics.lateral_sample_count = nnz(lateralViolation);
 metrics.heading_sample_count = nnz(headingViolation);
 metrics.any_sample_count = nnz(anyViolation);
-metrics.event_count = nnz(diff([false; anyViolation]) == 1);
+metrics.event_count = nnz(diff([false; anyViolation]) == 1); % counting how many times violation happened after recovering
 metrics.duration_s = metrics.any_sample_count * sampleTime_s;
 metrics.any_violation = any(anyViolation);
 

@@ -5,7 +5,7 @@ function runConfig = createRun( ...
     options)
 %CREATERUN Create phase-independent experiment-run configuration.
 
-% This structure is used only by MATLAB orchestration. Simulink continues
+% This structure is used only by MATLAB code automation or coordination. Simulink continues
 % to receive plain numeric parameter structures and arrays.
 
 arguments

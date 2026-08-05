@@ -27,18 +27,23 @@ classdef ExperimentRunner
 
             % Make direct scenario runners reproducible in a clean MATLAB
             % session, including adding the generated acados S-function.
-            check_runtime_requirements(controllerParams);
-
+            check_runtime_requirements(controllerParams); % can be removed since done in main.m file
+            
+            % UT variable is used by Original PLant model (DON'T CHANGE)
             UT = legacy_plant_parameters( ...
                 vehicleParams, simulationParams);
-
+            % acados solver settings for optimization. If you want to
+            % change the constraints, qp solver, tolerance, min/max itr,
+            % integration method.
+            % WARNINGS: if you change any settings, you have to REBUILD IT
+            % and change the S-function in SIMULINK.
             acadosSettings = ...
                 acados_ocp_parameters(controllerParams);
             acadosNominalInput = reshape( ...
                 acadosSettings.nominal_input, 2, 1);
 
-            trackReferenceTable = config.scenario.lookup_table;
-            scenarioStopTable = config.scenario.stop_event_table;
+            trackReferenceTable = config.scenario.lookup_table; % track profile
+            scenarioStopTable = config.scenario.stop_event_table; % stop_event: vel., dwell time, position
             finalTrackIndex = size(trackReferenceTable, 1);
 
             [environment, roadFrictionProfile] = ...
@@ -49,12 +54,13 @@ classdef ExperimentRunner
             config.environment = rmfield( ...
                 environment, "road_friction_profile");
             config.run = runConfig;
-
+            % initialize all the variables required by SIMULINK AND
+            % CONTROLLER
             backendVariables = configureController( ...
                 vehicleParams, ...
                 controllerParams, ...
                 simulationParams);
-
+            % create the input required by SIMULINK
             simInput = createSimulationInput( ...
                 runConfig, ...
                 vehicleParams, ...
@@ -100,6 +106,7 @@ classdef ExperimentRunner
     end
 end
 
+% check the field required to run the simulation
 function runConfig = validateRunConfig(runConfig)
 %VALIDATERUNCONFIG Validate the public runner contract.
 
@@ -129,12 +136,14 @@ end
 function [environment, roadFrictionProfile] = ...
     configureEnvironment(environmentName, stopTime_s)
 %CONFIGUREENVIRONMENT Load environment metadata and live input data.
-
+%FrictionDropTime_s is used only for switching the friction from lower to
+%higher. But we are not using it from phase1.
 environment = load_env_profile( ...
     lower(environmentName), ...
     stopTime_s, ...
     FrictionDropTime_s=10);
-
+% friction profile remain same constant value for all time. Unless u'r
+% changing it.
 roadFrictionProfile = environment.road_friction_profile;
 
 end
@@ -199,12 +208,12 @@ simInput = simInput.setVariable( ...
 simInput = simInput.setVariable( ...
     "scenario_stop_table", scenarioStopTable);
 simInput = simInput.setVariable( ...
-    "final_track_index", finalTrackIndex);
+    "final_track_index", finalTrackIndex); % track end: stop the simulation
 simInput = simInput.setVariable("UT", UT);
 simInput = simInput.setVariable( ...
     "acados_nominal_input", acadosNominalInput);
 simInput = simInput.setVariable( ...
-    "roadFrictionProfile", roadFrictionProfile);
+    "roadFrictionProfile", roadFrictionProfile); % disturbance in -> PLANT model
 
 if runConfig.phase_name == "phase1"
     simInput = simInput.setVariable( ...
