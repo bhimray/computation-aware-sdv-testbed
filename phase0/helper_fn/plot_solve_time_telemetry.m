@@ -3,24 +3,14 @@ function [figureHandle, metrics] = ...
         results, ...
         scenarioName, ...
         environmentName, ...
-        Ts_s)
-%PLOT_SOLVE_TIME_TELEMETRY Plot solver execution time over simulation time.
-%
-% Inputs:
-%   results          - Results structure containing:
-%                      time_s and solve_time_s
-%   Ts_s - Controller configuration containing Ts_s
-%   scenarioName     - Optional scenario name
-%
-% Outputs:
-%   figureHandle     - Created MATLAB figure
-%   metrics          - Solve-time statistics
-
+        Ts_s, ...
+        actuationDelay_s)
 arguments
     results (1,1) struct
     scenarioName (1,1) string
     environmentName (1,1) string
     Ts_s (1,1) double {mustBePositive}
+    actuationDelay_s (1,1) double = NaN
 end
 
 %% Validate inputs
@@ -136,11 +126,17 @@ grid(axesHandle,"on");
 xlabel(axesHandle,"Simulation time (s)");
 ylabel(axesHandle,"Solver execution time (ms)");
 
-title( ...
-    axesHandle, ...
-    "acados Solve-Time Telemetry: " + ...
-    replace(scenarioName,"_"," ") + " — " + ...
-    replace(environmentName, "_", " "));
+baseTitle = "acados Solve-Time Telemetry: " + replace(scenarioName,"_"," ") + " — " + ...
+            replace(environmentName, "_", " ");
+
+if ~isnan(actuationDelay_s)
+    delay_ms = actuationDelay_s * 1e3;
+    titleText = baseTitle + " (delay = " + num2str(delay_ms,'%.1f') + " ms)";
+else
+    titleText = baseTitle;
+end
+
+title(axesHandle, titleText);
 
 subtitle( ...
     axesHandle, ...

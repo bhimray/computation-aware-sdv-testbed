@@ -1,0 +1,52 @@
+
+========================================
+Phase 1.1 constant-delay sweep
+========================================
+Started:       05-Aug-2026 15:50:52
+Controller:    ACADOS_MPC
+Scenarios:     highway_cruise
+Environments:  dry_road
+Delay range:   0.0 to 100.0 ms
+Delay step:    10.0 ms
+Total runs:    11
+Log file:      C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\logs\constant_delay_sweep_20260805_155052.txt
+========================================
+
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+
+Scenario: highway_cruise, delay: 0.0 ms
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+{Operation terminated by user during <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('addpath', 'C:\Program Files\MATLAB\R2026a\toolbox\matlab\general\addpath.m', 66)" style="font-weight:bold">addpath</a> (<a href="matlab: opentoline('C:\Program Files\MATLAB\R2026a\toolbox\matlab\general\addpath.m',66,0)">line 66</a>)
+
+
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('activate_acados', 'C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\common\dependencies\acados\activate_acados.m', 67)" style="font-weight:bold">activate_acados</a> (<a href="matlab: opentoline('C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\common\dependencies\acados\activate_acados.m',67,0)">line 67</a>)
+    addpath(compatibilityDirectory, '-begin');
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('startup_project', 'C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\startup_project.m', 14)" style="font-weight:bold">startup_project</a> (<a href="matlab: opentoline('C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\startup_project.m',14,0)">line 14</a>)
+[acadosAvailable, ~] = activate_acados(false); %% if you want to activate acados:true
+                       ^^^^^^^^^^^^^^^^^^^^^^
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_phase1_baseline', 'C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\scripts\run_phase1_baseline.m', 19)" style="font-weight:bold">run_phase1_baseline</a> (<a href="matlab: opentoline('C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\scripts\run_phase1_baseline.m',19,0)">line 19</a>)
+startup_project;
+^^^^^^^^^^^^^^^
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_constant_delay_sweep', 'C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\scripts\run_constant_delay_sweep.m', 38)" style="font-weight:bold">run_constant_delay_sweep</a> (<a href="matlab: opentoline('C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\scripts\run_constant_delay_sweep.m',38,0)">line 38</a>)
+            [results, ~] = run_phase1_baseline( ...
+                           ^^^^^^^^^^^^^^^^^^^^^^^^
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main', 'C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\main.m', 175)" style="font-weight:bold">main</a> (<a href="matlab: opentoline('C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\main.m',175,0)">line 175</a>)
+            run_constant_delay_sweep( ...
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+} 
+main
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Runtime requirement check passed.
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Runtime requirement check passed.

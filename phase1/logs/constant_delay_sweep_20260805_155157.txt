@@ -1,0 +1,276 @@
+
+========================================
+Phase 1.1 constant-delay sweep
+========================================
+Started:       05-Aug-2026 15:51:57
+Controller:    ACADOS_MPC
+Scenarios:     highway_cruise
+Environments:  dry_road
+Delay range:   0.0 to 100.0 ms
+Delay step:    10.0 ms
+Total runs:    11
+Log file:      C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\logs\constant_delay_sweep_20260805_155157.txt
+========================================
+
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+
+Scenario: highway_cruise, delay: 0.0 ms
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Runtime requirement check passed.
+Running acados controller... 
+[Warning: When delay time is set to zero, the transport delay block '<a href="matlab:open_and_hilite_hyperlink ('phase1_baseline/Transport Delay','error')">phase1_baseline/Transport
+Delay</a>' is automatically set to support direct feedthrough. This may cause an algebraic loop. A
+Memory Block can be used in place of the Transport Delay to break the loop] 
+[> In Simulink.Simulation.internal.DesktopSimHelper
+In Simulink.Simulation.internal.DesktopSimHelper.sim
+In Simulink/SimulationInput/sim
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('sdv/ExperimentRunner/run', 'C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\common\+sdv\ExperimentRunner.m', 78)" style="font-weight:bold">sdv/ExperimentRunner/run</a> (<a href="matlab: opentoline('C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\common\+sdv\ExperimentRunner.m',78,0)">line 78</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_phase1_baseline', 'C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\scripts\run_phase1_baseline.m', 35)" style="font-weight:bold">run_phase1_baseline</a> (<a href="matlab: opentoline('C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\scripts\run_phase1_baseline.m',35,0)">line 35</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_constant_delay_sweep', 'C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\scripts\run_constant_delay_sweep.m', 38)" style="font-weight:bold">run_constant_delay_sweep</a> (<a href="matlab: opentoline('C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\scripts\run_constant_delay_sweep.m',38,0)">line 38</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main', 'C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\main.m', 175)" style="font-weight:bold">main</a> (<a href="matlab: opentoline('C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\main.m',175,0)">line 175</a>)] 
+[Warning: When delay time is set to zero, the transport delay block '<a href="matlab:open_and_hilite_hyperlink ('phase1_baseline/Transport Delay2','error')">phase1_baseline/Transport
+Delay2</a>' is automatically set to support direct feedthrough. This may cause an algebraic loop. A
+Memory Block can be used in place of the Transport Delay to break the loop] 
+[> In Simulink.Simulation.internal.DesktopSimHelper
+In Simulink.Simulation.internal.DesktopSimHelper.sim
+In Simulink/SimulationInput/sim
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('sdv/ExperimentRunner/run', 'C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\common\+sdv\ExperimentRunner.m', 78)" style="font-weight:bold">sdv/ExperimentRunner/run</a> (<a href="matlab: opentoline('C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\common\+sdv\ExperimentRunner.m',78,0)">line 78</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_phase1_baseline', 'C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\scripts\run_phase1_baseline.m', 35)" style="font-weight:bold">run_phase1_baseline</a> (<a href="matlab: opentoline('C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\scripts\run_phase1_baseline.m',35,0)">line 35</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('run_constant_delay_sweep', 'C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\scripts\run_constant_delay_sweep.m', 38)" style="font-weight:bold">run_constant_delay_sweep</a> (<a href="matlab: opentoline('C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\scripts\run_constant_delay_sweep.m',38,0)">line 38</a>)
+In <a href="matlab:matlab.lang.internal.introspective.errorDocCallback('main', 'C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\main.m', 175)" style="font-weight:bold">main</a> (<a href="matlab: opentoline('C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\main.m',175,0)">line 175</a>)] 
+
+Solve-time telemetry: highway_cruise
+Mean:             11.0265 ms
+Median:           11.6592 ms
+95th percentile:  15.1765 ms
+99th percentile:  18.4370 ms
+Maximum:          212.6889 ms
+Deadline:         10.0000 ms
+Deadline misses: 4865/5563 (87.4528%)
+
+Scenario: highway_cruise, delay: 10.0 ms
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Runtime requirement check passed.
+Running acados controller... 
+
+Solve-time telemetry: highway_cruise
+Mean:             10.7051 ms
+Median:           11.6196 ms
+95th percentile:  14.2250 ms
+99th percentile:  16.8103 ms
+Maximum:          20.2790 ms
+Deadline:         10.0000 ms
+Deadline misses: 4859/5566 (87.2979%)
+
+Scenario: highway_cruise, delay: 20.0 ms
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Runtime requirement check passed.
+Running acados controller... 
+
+Solve-time telemetry: highway_cruise
+Mean:             11.5631 ms
+Median:           12.0846 ms
+95th percentile:  17.6582 ms
+99th percentile:  20.2169 ms
+Maximum:          99.4096 ms
+Deadline:         10.0000 ms
+Deadline misses: 4856/5565 (87.2597%)
+
+Scenario: highway_cruise, delay: 30.0 ms
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Runtime requirement check passed.
+Running acados controller... 
+
+Solve-time telemetry: highway_cruise
+Mean:             11.1671 ms
+Median:           11.9826 ms
+95th percentile:  15.7356 ms
+99th percentile:  17.9783 ms
+Maximum:          24.8891 ms
+Deadline:         10.0000 ms
+Deadline misses: 4857/5565 (87.2776%)
+
+Scenario: highway_cruise, delay: 40.0 ms
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Runtime requirement check passed.
+Running acados controller... 
+
+Solve-time telemetry: highway_cruise
+Mean:             13.1046 ms
+Median:           13.0978 ms
+95th percentile:  20.4083 ms
+99th percentile:  22.4516 ms
+Maximum:          35.6665 ms
+Deadline:         10.0000 ms
+Deadline misses: 4855/5562 (87.2887%)
+
+Scenario: highway_cruise, delay: 50.0 ms
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Runtime requirement check passed.
+Running acados controller... 
+
+Solve-time telemetry: highway_cruise
+Mean:             11.2641 ms
+Median:           12.1307 ms
+95th percentile:  15.2919 ms
+99th percentile:  18.0480 ms
+Maximum:          76.3725 ms
+Deadline:         10.0000 ms
+Deadline misses: 4855/5560 (87.3201%)
+
+Scenario: highway_cruise, delay: 60.0 ms
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Runtime requirement check passed.
+Running acados controller... 
+
+Solve-time telemetry: highway_cruise
+Mean:             13.1675 ms
+Median:           13.4009 ms
+95th percentile:  19.6392 ms
+99th percentile:  20.6921 ms
+Maximum:          63.9721 ms
+Deadline:         10.0000 ms
+Deadline misses: 4849/5560 (87.2122%)
+
+Scenario: highway_cruise, delay: 70.0 ms
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Runtime requirement check passed.
+Running acados controller... 
+
+Solve-time telemetry: highway_cruise
+Mean:             13.6650 ms
+Median:           14.2478 ms
+95th percentile:  19.6637 ms
+99th percentile:  21.1120 ms
+Maximum:          31.2099 ms
+Deadline:         10.0000 ms
+Deadline misses: 4855/5571 (87.1477%)
+
+Scenario: highway_cruise, delay: 80.0 ms
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Runtime requirement check passed.
+Running acados controller... 
+
+Solve-time telemetry: highway_cruise
+Mean:             13.2817 ms
+Median:           13.5997 ms
+95th percentile:  19.7289 ms
+99th percentile:  20.5902 ms
+Maximum:          64.8230 ms
+Deadline:         10.0000 ms
+Deadline misses: 4867/5584 (87.1597%)
+
+Scenario: highway_cruise, delay: 90.0 ms
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Runtime requirement check passed.
+Running acados controller... 
+
+Solve-time telemetry: highway_cruise
+Mean:             11.1432 ms
+Median:           12.0566 ms
+95th percentile:  15.1558 ms
+99th percentile:  17.5789 ms
+Maximum:          114.9608 ms
+Deadline:         10.0000 ms
+Deadline misses: 4825/5591 (86.2994%)
+
+Scenario: highway_cruise, delay: 100.0 ms
+Project initialized from:
+C:\Users\rayyu\OneDrive\Desktop\UTD\SDV
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Activated acados v0.5.4 from:
+C:\Users\rayyu\AppData\Local\SDV\dependencies\acados\v0.5.4
+Runtime requirement check passed.
+Running acados controller... 
+
+Solve-time telemetry: highway_cruise
+Mean:             14.2584 ms
+Median:           15.5979 ms
+95th percentile:  19.6565 ms
+99th percentile:  21.1200 ms
+Maximum:          98.9410 ms
+Deadline:         10.0000 ms
+Deadline misses: 4878/5603 (87.0605%)
+
+Environment completed: dry_road
+Combined completed rows: 11 of 11
+
+========================================
+Phase 1.1 sweep completed
+========================================
+Finished:        05-Aug-2026 16:14:40
+Successful runs: 11
+Failed runs:     0
+Total rows:      11
+MAT summary:     C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\results\ACADOS_MPC\constant_delay_sweep\all_environments\constant_delay_all_results.mat
+CSV summary:     C:\Users\rayyu\OneDrive\Desktop\UTD\SDV\phase1\results\ACADOS_MPC\constant_delay_sweep\all_environments\constant_delay_all_results.csv
+========================================
+     <strong>scenario_name</strong>      <strong>environment_name</strong>    <strong>delay_s</strong>    <strong>delay_ms</strong>    <strong>simulation_completed</strong>    <strong>final_time_s</strong>    <strong>speed_rmse_mps</strong>    <strong>speed_peak_mps</strong>    <strong>lateral_rmse_m</strong>    <strong>lateral_peak_m</strong>    <strong>heading_rmse_rad</strong>    <strong>heading_peak_rad</strong>    <strong>constraint_violation_samples</strong>    <strong>constraint_violation_events</strong>    <strong>constraint_violation_duration_s</strong>    <strong>error_identifier</strong>    <strong>error_message</strong>
+    <strong>________________</strong>    <strong>________________</strong>    <strong>_______</strong>    <strong>________</strong>    <strong>____________________</strong>    <strong>____________</strong>    <strong>______________</strong>    <strong>______________</strong>    <strong>______________</strong>    <strong>______________</strong>    <strong>________________</strong>    <strong>________________</strong>    <strong>____________________________</strong>    <strong>___________________________</strong>    <strong>_______________________________</strong>    <strong>________________</strong>    <strong>_____________</strong>
+
+    "highway_cruise"       "dry_road"           0          0              true                55.62            2.0162            2.8692          0.0048709          0.013008          0.0013269           0.0031839                     0                               0                                0                          ""                ""      
+    "highway_cruise"       "dry_road"        0.01         10              true                55.65            2.0297            2.9228          0.0043861          0.012965          0.0013278           0.0033327                     0                               0                                0                          ""                ""      
+    "highway_cruise"       "dry_road"        0.02         20              true                55.64            2.0275            2.9224          0.0038498          0.012764          0.0013506           0.0033627                     0                               0                                0                          ""                ""      
+    "highway_cruise"       "dry_road"        0.03         30              true                55.64            2.0226            2.9272           0.006769          0.054296          0.0015669           0.0072867                     0                               0                                0                          ""                ""      
+    "highway_cruise"       "dry_road"        0.04         40              true                55.61            2.0071             2.846           0.044146           0.11974          0.0026263            0.012589                     0                               0                                0                          ""                ""      
+    "highway_cruise"       "dry_road"        0.05         50              true                55.59            1.9953            2.8075           0.055348           0.11805          0.0028298            0.016336                     0                               0                                0                          ""                ""      
+    "highway_cruise"       "dry_road"        0.06         60              true                55.59            1.9928            2.7998           0.051547           0.11668          0.0031547            0.014067                     0                               0                                0                          ""                ""      
+    "highway_cruise"       "dry_road"        0.07         70              true                 55.7            2.0468            2.9482            0.02875           0.10286          0.0051202            0.017471                     0                               0                                0                          ""                ""      
+    "highway_cruise"       "dry_road"        0.08         80              true                55.83            2.1022            2.9053           0.057665           0.16468          0.0053737            0.023162                     0                               0                                0                          ""                ""      
+    "highway_cruise"       "dry_road"        0.09         90              true                 55.9            2.1324            2.9246           0.059975           0.21184           0.005857            0.025895                     0                               0                                0                          ""                ""      
+    "highway_cruise"       "dry_road"         0.1        100              true                56.02            2.1877            2.9969           0.059606           0.21799          0.0069562             0.02704                     0                               0                                0                          ""                ""      
+

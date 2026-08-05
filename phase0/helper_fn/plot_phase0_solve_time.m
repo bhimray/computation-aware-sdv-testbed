@@ -1,10 +1,19 @@
 function [figureHandle, metrics] = ...
     plot_phase0_solve_time( ...
-        results, scenario, environmentName, controlSampleTime_s)
+        results, scenario, environmentName, controlSampleTime_s, ...
+        actuationDelay_s)
 %PLOT_PHASE0_SOLVE_TIME Plot solve-time histogram and calculate metrics.
 %
 % Raw solve time is stored in seconds. The figure and report table use
 % milliseconds for readability.
+
+arguments
+    results
+    scenario
+    environmentName
+    controlSampleTime_s (1,1) double {mustBePositive}
+    actuationDelay_s (1,1) double = NaN
+end
 
 solveTime_s = results.solve_time_s;
 
@@ -108,7 +117,14 @@ scenarioTitle = replace( ...
     string(scenario.name), "_", " ");
 environmentName = replace(string(environmentName), "_", " ");
 
-title( ...
-    "MPC Solve-Time Distribution: " + scenarioTitle +", " + environmentName);
+if ~isnan(actuationDelay_s)
+    delay_ms = actuationDelay_s * 1e3;
+    title( ...
+        "MPC Solve-Time Distribution: " + scenarioTitle + ", " + environmentName + ...
+        " (delay = " + num2str(delay_ms, '%.1f') + " ms)");
+else
+    title( ...
+        "MPC Solve-Time Distribution: " + scenarioTitle +", " + environmentName);
+end
 
 end

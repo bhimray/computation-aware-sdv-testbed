@@ -1,7 +1,15 @@
 function [figureHandle, metrics] = ...
     plot_phase0_tracking_errors( ...
-        results, scenario, environmentName, controller)
+        results, scenario, environmentName, controller, actuationDelay_s)
 %PLOT_PHASE0_TRACKING_ERRORS Plot e_v, e_y, and e_psi with metrics.
+
+arguments
+    results
+    scenario
+    environmentName
+    controller
+    actuationDelay_s (1,1) double = NaN
+end
 
 time = results.time_s;
 speedError = results.ev_mps;
@@ -108,7 +116,15 @@ title(sprintf( ...
     metrics.heading_rmse_deg, metrics.heading_peak_deg));
 legend(Location="best");
 
-title(layout, "Tracking Errors: " + scenarioTitle + " — " + environmentName);
+if ~isnan(actuationDelay_s)
+    delay_ms = actuationDelay_s * 1e3;
+    titleText = "Tracking Errors: " + scenarioTitle + " — " + environmentName + ...
+                " (delay = " + num2str(delay_ms, '%.1f') + " ms)";
+else
+    titleText = "Tracking Errors: " + scenarioTitle + " — " + environmentName;
+end
+
+title(layout, titleText);
 
 end
 

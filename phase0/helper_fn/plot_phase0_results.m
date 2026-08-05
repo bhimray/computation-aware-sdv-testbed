@@ -1,5 +1,13 @@
-function figureHandle = plot_phase0_results(results, scenario, environmentName)
+function figureHandle = plot_phase0_results(results, scenario, environmentName, ...
+    actuationDelay_s)
 %PLOT_PHASE0_RESULTS Plot one Phase 0 closed-loop simulation.
+
+arguments
+    results
+    scenario
+    environmentName (1,1) string
+    actuationDelay_s (1,1) double = NaN
+end
 
 %% Prepare plot variables
 
@@ -143,8 +151,13 @@ hold off;
 scenarioTitle = replace(string(scenario.name), "_", " ");
 environmentName = replace(string(environmentName), "_", " ");
 
-title( ...
-    layout, ...
-    "MPC Closed-Loop Results: " + scenarioTitle + " — " + environmentName);
+if ~isnan(actuationDelay_s)
+    delay_ms = actuationDelay_s * 1e3;
+    titleText = "MPC Closed-Loop Results: " + scenarioTitle + " — " + environmentName + ...
+                " (delay = " + num2str(delay_ms, '%.1f') + " ms)";
+else
+    titleText = "MPC Closed-Loop Results: " + scenarioTitle + " — " + environmentName;
+end
 
+title(layout, titleText);
 end

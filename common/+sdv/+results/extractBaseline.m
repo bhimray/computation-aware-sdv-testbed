@@ -10,12 +10,17 @@ axSignal = logs.get("ax_meas").Values;
 xSignal = logs.get("x_pos").Values;
 ySignal = logs.get("y_pos").Values;
 torqueSignal = logs.get("torque_opt").Values;
+torqueAppliedSignal = logs.get("applied_torque").Values;
 steeringSignal = logs.get("steering_angle_opt").Values;
+steeringAppliedSignal = logs.get("applied_steering_angle").Values;
 yawRateSignal = logs.get("yaw_rate_meas").Values;
 eySignal = logs.get("ey_m").Values;
 headingErrorSignal = logs.get("epsi_rad").Values;
 statusSignal = logs.get("solve_status").Values;
 frictionSignal = logs.get("road_friction_mu").Values;
+cputimeQPSignal = logs.get("cpu_time_qp").Values;
+cputtimeSIMSignal = logs.get("cpu_time_sim").Values;
+cputtimeLINSignal = logs.get("cpu_time_lin").Values;
 
 assertAligned(vxSignal, vxReferenceSignal, "vx_ref");
 assertAligned(vxSignal, eySignal, "ey_m");
@@ -35,6 +40,13 @@ results.yaw_rate_radps = toColumn(yawRateSignal.Data);
 results.solve_status = toColumn(statusSignal.Data);
 results.road_friction_time_s = toColumn(frictionSignal.Time);
 results.road_friction_mu = toColumn(frictionSignal.Data);
+results.torque_applied_Nm = toColumn(torqueAppliedSignal.Data);
+results.torque_applied_time = toColumn(torqueAppliedSignal.Time);
+results.steering_applied_angle_rad = toColumn(steeringAppliedSignal.Data);
+results.steering_applied_time = toColumn(steeringAppliedSignal.Time);
+results.cput_time_qp_s = toColumn(cputimeQPSignal.Data);
+results.cput_time_sim_s = toColumn(cputtimeSIMSignal.Data);
+results.cput_time_lin_s = toColumn(cputtimeLINSignal.Data);
 
 if solveTimeAvailable
     solveTimeSignal = logs.get("solve_time").Values;
