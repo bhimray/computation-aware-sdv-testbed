@@ -6,6 +6,7 @@ projectRoot = fileparts(mfilename("fullpath"));
 addpath(fullfile(projectRoot, "common"));
 addpath(genpath(fullfile(projectRoot, "common")));
 addpath(genpath(fullfile(projectRoot, "phase0")));
+addpath(genpath(fullfile(projectRoot, "phase1")));
 
 fprintf("Project initialized from:\n%s\n", projectRoot);
 

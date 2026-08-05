@@ -66,21 +66,12 @@ end
 
 check_runtime_requirements(controller);
 
-environmentNames = [
-    "dry_road"
-    % "low_friction_road"    actuationDelay_s ...
+[delaySweepSummary, delaySweepFigure] = ...
+    run_constant_delay_sweep( ...
+        ScenarioNames=[ ...
+            "urban_profile", ...
+            "aggressive_maneuver"], ...
+        EnvironmentName="dry_road", ...
+        Delay_ms=0:5:100);
 
-    % "sudden_friction_drop"
-    ];
-for actuation_delay_ms = 0:10:100
-    actuation_delay_s = actuation_delay_ms * 1e-3;
-    for environmentName = environmentNames.'
-        fprintf( ...
-            "\nRunning environment: %s\n", ...
-            environmentName);
-        run_urban_profile_phase1(environmentName, actuation_delay_s);
-        run_highway_cruise_phase1(environmentName, actuation_delay_s);
-        run_aggressive_maneuver_phase1(environmentName, actuation_delay_s);
-    end
-    break;
-end
+disp(delaySweepSummary);

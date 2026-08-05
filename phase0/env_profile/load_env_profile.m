@@ -64,8 +64,8 @@ switch profileName
             ];
 
         frictionMu = [
-            0.3
-            0.3
+            0.4
+            0.4
             ];
 
     case "sudden_friction_drop"
@@ -94,8 +94,8 @@ switch profileName
 
         frictionMu = [
             0.8
-            0.3
-            0.3
+            0.4
+            0.4
             ];
 
     otherwise

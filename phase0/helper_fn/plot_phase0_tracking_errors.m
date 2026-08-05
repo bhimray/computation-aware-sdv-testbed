@@ -12,18 +12,7 @@ assert(all(isfinite( ...
     [time; speedError; lateralError; headingError])), ...
     "Tracking-error results contain NaN or Inf values.");
 
-metrics = struct();
-
-metrics.speed_rmse_mps = rmsFromSamples(speedError);
-metrics.speed_peak_mps = max(abs(speedError));
-
-metrics.lateral_rmse_m = rmsFromSamples(lateralError);
-metrics.lateral_peak_m = max(abs(lateralError));
-
-metrics.heading_rmse_rad = rmsFromSamples(headingError);
-metrics.heading_peak_rad = max(abs(headingError));
-metrics.heading_rmse_deg = rad2deg(metrics.heading_rmse_rad);
-metrics.heading_peak_deg = rad2deg(metrics.heading_peak_rad);
+metrics = sdv.metrics.computeTracking(results);
 
 scenarioTitle = replace(string(scenario.name), "_", " ");
 environmentName = replace(string(environmentName), "_", " ");
@@ -121,12 +110,6 @@ legend(Location="best");
 
 title(layout, "Tracking Errors: " + scenarioTitle + " — " + environmentName);
 
-end
-
-function value = rmsFromSamples(signal)
-%RMSFROMSAMPLES Calculate RMS without requiring an additional toolbox.
-
-value = sqrt(mean(signal.^2));
 end
 
 function addErrorReferenceLines(rmsValue, peakValue, units)
