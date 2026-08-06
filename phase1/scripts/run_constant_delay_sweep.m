@@ -21,7 +21,7 @@ controllerName = sdv.config.controllerName( ...
     configuration.controller);
 
 summaryTable = table();
-i = 0;
+
 for delay_ms = options.Delay_ms
 
     delay_s = delay_ms * 1e-3;
@@ -87,11 +87,7 @@ for delay_ms = options.Delay_ms
             controllerName, ...
             options.EnvironmentName);
     end
-    i = i + 1; % Increment the iteration counter
-    if i == 2
-        break
-    end
-    
+
 end
 
 %% after all delay and scenario simulation finish for one environment (i.e. friction)

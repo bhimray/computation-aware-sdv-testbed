@@ -83,7 +83,7 @@ environmentNames = [ ...
     % "low_friction_road"
     ];
 
-delayValues_ms = 0:10:100;
+delayValues_ms = 0:20:200;
 
 %% total number of simulation
 numberOfRuns = ...
