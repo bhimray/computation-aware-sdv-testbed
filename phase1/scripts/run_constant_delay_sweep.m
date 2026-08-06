@@ -87,7 +87,7 @@ for delay_ms = options.Delay_ms
             controllerName, ...
             options.EnvironmentName);
     end
-
+    break
 end
 
 %% after all delay and scenario simulation finish for one environment (i.e. friction)

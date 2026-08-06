@@ -210,7 +210,7 @@ controller.stateConstraintECR = ones(5,1);
 controller.slackPenalty_ey = 1e5;
 controller.slackPenalty_epsi = 1e5; %1e0 not able to follow highway-cruise traj but aggressive
 
-controller.enableIntermediateStateConstraints = false;
+controller.enableIntermediateStateConstraints = true;
 controller.enableTerminalStateConstraints = false;
 
 end
