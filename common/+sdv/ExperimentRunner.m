@@ -260,6 +260,7 @@ requiredSignals = [ ...
     "cpu_time_qp"
     "cpu_time_lin"
     "road_friction_mu"
+    "slack_val"
     ];
 
 availableSignals = string(logs.getElementNames);

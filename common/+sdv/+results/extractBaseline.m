@@ -21,10 +21,22 @@ frictionSignal = logs.get("road_friction_mu").Values;
 cputimeQPSignal = logs.get("cpu_time_qp").Values;
 cputtimeSIMSignal = logs.get("cpu_time_sim").Values;
 cputtimeLINSignal = logs.get("cpu_time_lin").Values;
+slackSignal = logs.get("slack_val").Values;
 
 assertAligned(vxSignal, vxReferenceSignal, "vx_ref");
 assertAligned(vxSignal, eySignal, "ey_m");
 assertAligned(vxSignal, headingErrorSignal, "epsi_rad");
+assertAligned(vxSignal, slackSignal, "slack_val");
+
+slackData = squeeze(double(slackSignal.Data));
+% Convert to: number of samples × 4 slack summaries.
+if size(slackData, 1) == 4
+    slackData = slackData.';
+end
+
+assert(size(slackData, 2) == 4, ...
+    "Logged slack_val must contain four channels.");
+
 
 results = struct();
 results.schema_version = 1;
@@ -48,6 +60,20 @@ results.cput_time_qp_s = toColumn(cputimeQPSignal.Data);
 results.cput_time_sim_s = toColumn(cputtimeSIMSignal.Data);
 results.cput_time_lin_s = toColumn(cputtimeLINSignal.Data);
 
+results.slack_time_s = ...
+    toColumn(slackSignal.Time);
+
+results.first_predicted_ey_slack_m = ...
+    slackData(:,1);
+
+results.first_predicted_epsi_slack_rad = ...
+    slackData(:,2);
+
+results.max_predicted_ey_slack_m = ...
+    slackData(:,3);
+
+results.max_predicted_epsi_slack_rad = ...
+    slackData(:,4);
 if solveTimeAvailable
     solveTimeSignal = logs.get("solve_time").Values;
     assertAligned(vxSignal, solveTimeSignal, "solve_time");
