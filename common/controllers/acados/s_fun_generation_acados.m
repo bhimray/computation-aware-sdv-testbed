@@ -17,6 +17,9 @@ configuration = ...
 
 solver = AcadosOcpSolver(ocp);
 
+addModelReferenceInheritanceRule( ...
+    metadata.generated_directory);
+
 originalDirectory = pwd;
 directoryCleanup = ...
     onCleanup(@() cd(originalDirectory)); %#ok<NASGU>

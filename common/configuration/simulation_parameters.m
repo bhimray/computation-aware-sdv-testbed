@@ -12,4 +12,10 @@ simulation.stop_time_s = scenario.simulation_stop_time_s;
 % simulation.road_friction_mu = scenario.road_friction_mu; %% used using
 % environment var
 simulation.slope_rad = scenario.slope_rad;
+
+%% sampling jitter phase 1.3
+simulation.simulationStep_s = 0.0005;
+simulation.jitterBound_ms = 5;
+simulation.randomSeed = 1;
+
 end
