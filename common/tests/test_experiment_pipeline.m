@@ -65,3 +65,31 @@ verifyEqual(testCase, metrics.duration_s, 0.02, ...
     AbsTol=1e-12);
 
 end
+
+function testIndependentPerformanceMonitor(testCase)
+
+scenario = struct();
+scenario.station_m = [0; 10; 20];
+scenario.X_ref_m = [0; 10; 20];
+scenario.Y_ref_m = [0; 0; 0];
+scenario.psi_ref_rad = [0; 0; 0];
+scenario.vx_ref_mps = [5; 5; 5];
+
+results = struct();
+results.time_s = [0; 1; 2];
+results.x_pos_m = [0; 5; 10];
+results.y_pos_m = [1; 1; 1];
+results.vx_mps = [5; 5; 5];
+results.yaw_rate_radps = [0; 0; 0];
+
+monitor = sdv.metrics.computePerformanceMonitor( ...
+    results, scenario, 0);
+
+verifyEqual(testCase, monitor.ev_mps, zeros(3,1), ...
+    AbsTol=1e-12);
+verifyEqual(testCase, monitor.ey_m, ones(3,1), ...
+    AbsTol=1e-12);
+verifyEqual(testCase, monitor.epsi_rad, zeros(3,1), ...
+    AbsTol=1e-12);
+
+end
