@@ -8,10 +8,13 @@ arguments
     controllerName (1,1) string
 end
 
-pathParts = [ ...
-    runConfig.phase_name
-    controllerName
-    ];
+phaseFolderName = runConfig.phase_name;
+
+if runConfig.phase_name == "phase1_trigger"
+    phaseFolderName = "phase1";
+end
+
+pathParts = [phaseFolderName; controllerName];
 
 if runConfig.phase_name == "phase1"
     delayMilliseconds = 1e3 * runConfig.actuation_delay_s;
@@ -19,6 +22,16 @@ if runConfig.phase_name == "phase1"
     delayText = replace(delayText, ".", "p");
     pathParts(end + 1) = ...
         "actuation_delay_" + delayText + "_ms";
+elseif runConfig.phase_name == "phase1_trigger"
+    jitterText = string(sprintf( ...
+        "%g", runConfig.jitter.bound_ms));
+    jitterText = replace(jitterText, ".", "p");
+
+    pathParts(end + 1) = "sampling_jitter";
+    pathParts(end + 1) = ...
+        "jitter_bound_" + jitterText + "_ms";
+    pathParts(end + 1) = ...
+        "seed_" + string(runConfig.jitter.random_seed);
 end
 
 pathParts(end + 1) = runConfig.scenario_name;
@@ -27,9 +40,9 @@ pathParts(end + 1) = runConfig.environment_name;
 folders = struct();
 tailParts = pathParts(2:end);
 folders.results = fullfile( ...
-    projectRoot, runConfig.phase_name, "results", tailParts{:});
+    projectRoot, phaseFolderName, "results", tailParts{:});
 folders.figures = fullfile( ...
-    projectRoot, runConfig.phase_name, "figures", tailParts{:});
+    projectRoot, phaseFolderName, "figures", tailParts{:});
 
 if ~isfolder(folders.results)
     mkdir(folders.results);

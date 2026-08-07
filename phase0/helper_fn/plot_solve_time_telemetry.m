@@ -23,7 +23,12 @@ assert(isfield(results,"solve_time_s"), ...
 
 %% Extract and clean data
 
-time_s = results.time_s(:);
+if isfield(results, "solve_time_time_s") && ...
+        ~isempty(results.solve_time_time_s)
+    time_s = results.solve_time_time_s(:);
+else
+    time_s = results.time_s(:);
+end
 solveTime_ms = 1e3 * results.solve_time_s(:);
 
 numberOfSamples = min( ...

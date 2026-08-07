@@ -1,5 +1,12 @@
-function results = extractBaseline(logs, solveTimeAvailable)
+function results = extractBaseline( ...
+    logs, solveTimeAvailable, options)
 %EXTRACTBASELINE Convert logged baseline signals to a stable result schema.
+
+arguments
+    logs
+    solveTimeAvailable (1,1) logical
+    options.IrregularControllerTiming (1,1) logical = false
+end
 
 toColumn = @(data) ...
     reshape(squeeze(double(data)), [], 1);
@@ -23,10 +30,32 @@ cputtimeSIMSignal = logs.get("cpu_time_sim").Values;
 cputtimeLINSignal = logs.get("cpu_time_lin").Values;
 slackSignal = logs.get("slack_val").Values;
 
-assertAligned(vxSignal, vxReferenceSignal, "vx_ref");
-assertAligned(vxSignal, eySignal, "ey_m");
-assertAligned(vxSignal, headingErrorSignal, "epsi_rad");
-assertAligned(vxSignal, slackSignal, "slack_val");
+measurementTime_s = toColumn(vxSignal.Time);
+
+if options.IrregularControllerTiming
+    vxReferenceData = resampleHeldSignal( ...
+        vxReferenceSignal, measurementTime_s);
+    torqueData = resampleHeldSignal( ...
+        torqueSignal, measurementTime_s);
+    steeringData = resampleHeldSignal( ...
+        steeringSignal, measurementTime_s);
+    eyData = resampleHeldSignal( ...
+        eySignal, measurementTime_s);
+    headingErrorData = resampleHeldSignal( ...
+        headingErrorSignal, measurementTime_s);
+else
+    assertAligned(vxSignal, vxReferenceSignal, "vx_ref");
+    assertAligned(vxSignal, torqueSignal, "torque_opt");
+    assertAligned(vxSignal, steeringSignal, "steering_angle_opt");
+    assertAligned(vxSignal, eySignal, "ey_m");
+    assertAligned(vxSignal, headingErrorSignal, "epsi_rad");
+
+    vxReferenceData = toColumn(vxReferenceSignal.Data);
+    torqueData = toColumn(torqueSignal.Data);
+    steeringData = toColumn(steeringSignal.Data);
+    eyData = toColumn(eySignal.Data);
+    headingErrorData = toColumn(headingErrorSignal.Data);
+end
 
 slackData = squeeze(double(slackSignal.Data));
 % Convert to: number of samples × 4 slack summaries.
@@ -40,16 +69,17 @@ assert(size(slackData, 2) == 4, ...
 
 results = struct();
 results.schema_version = 1;
-results.time_s = toColumn(vxSignal.Time);
+results.time_s = measurementTime_s;
 results.vx_mps = toColumn(vxSignal.Data);
-results.vx_ref_mps = toColumn(vxReferenceSignal.Data);
+results.vx_ref_mps = vxReferenceData;
 results.ax_mps2 = toColumn(axSignal.Data);
 results.x_pos_m = toColumn(xSignal.Data);
 results.y_pos_m = toColumn(ySignal.Data);
-results.torque_Nm = toColumn(torqueSignal.Data);
-results.steering_angle_rad = toColumn(steeringSignal.Data);
+results.torque_Nm = torqueData;
+results.steering_angle_rad = steeringData;
 results.yaw_rate_radps = toColumn(yawRateSignal.Data);
 results.solve_status = toColumn(statusSignal.Data);
+results.solve_status_time_s = toColumn(statusSignal.Time);
 results.road_friction_time_s = toColumn(frictionSignal.Time);
 results.road_friction_mu = toColumn(frictionSignal.Data);
 results.torque_applied_Nm = toColumn(torqueAppliedSignal.Data);
@@ -57,8 +87,11 @@ results.torque_applied_time = toColumn(torqueAppliedSignal.Time);
 results.steering_applied_angle_rad = toColumn(steeringAppliedSignal.Data);
 results.steering_applied_time = toColumn(steeringAppliedSignal.Time);
 results.cput_time_qp_s = toColumn(cputimeQPSignal.Data);
+results.cput_time_qp_time_s = toColumn(cputimeQPSignal.Time);
 results.cput_time_sim_s = toColumn(cputtimeSIMSignal.Data);
+results.cput_time_sim_time_s = toColumn(cputtimeSIMSignal.Time);
 results.cput_time_lin_s = toColumn(cputtimeLINSignal.Data);
+results.cput_time_lin_time_s = toColumn(cputtimeLINSignal.Time);
 
 results.slack_time_s = ...
     toColumn(slackSignal.Time);
@@ -76,7 +109,6 @@ results.max_predicted_epsi_slack_rad = ...
     slackData(:,4);
 if solveTimeAvailable
     solveTimeSignal = logs.get("solve_time").Values;
-    assertAligned(vxSignal, solveTimeSignal, "solve_time");
     results.solve_time_s = toColumn(solveTimeSignal.Data);
     results.solve_time_time_s = toColumn(solveTimeSignal.Time);
 else
@@ -86,8 +118,39 @@ end
 
 % Tracking-error convention: measured value minus reference value.
 results.ev_mps = results.vx_mps - results.vx_ref_mps;
-results.ey_m = toColumn(eySignal.Data);
-results.epsi_rad = toColumn(headingErrorSignal.Data);
+results.ey_m = eyData;
+results.epsi_rad = headingErrorData;
+
+end
+
+function resampledData = resampleHeldSignal(signal, targetTime_s)
+%RESAMPLEHELDSIGNAL Evaluate an irregular signal using zero-order hold.
+
+sourceTime_s = reshape( ...
+    squeeze(double(signal.Time)), [], 1);
+sourceData = reshape( ...
+    squeeze(double(signal.Data)), [], 1);
+
+assert(~isempty(sourceTime_s), ...
+    "Cannot resample an empty logged signal.");
+
+[sourceTime_s, uniqueIndices] = unique( ...
+    sourceTime_s, "last");
+sourceData = sourceData(uniqueIndices);
+
+if isscalar(sourceTime_s)
+    resampledData = repmat( ...
+        sourceData, numel(targetTime_s), 1);
+else
+    resampledData = interp1( ...
+        sourceTime_s, ...
+        sourceData, ...
+        targetTime_s, ...
+        "previous", ...
+        "extrap");
+end
+
+resampledData = reshape(resampledData, [], 1);
 
 end
 
