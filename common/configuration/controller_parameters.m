@@ -26,6 +26,15 @@ controller.BACKEND_ADAPTIVE = 3;
 controller.controller_backend = ...
     controller.BACKEND_ACADOS;
 
+%% FOR PHASE1, 1.1 and 1.2
+controller.DELAY_MODE_CONSTANT = 1;
+controller.DELAY_MODE_RANDOM = 2;
+
+controller.delayMode = controller.DELAY_MODE_RANDOM;
+
+controller.actuationDelay_s = 0.05;
+controller.maximumRandomDelay_s = 0.3;
+
 %% Prediction-model dimensions
 
 controller.num_states = 5;

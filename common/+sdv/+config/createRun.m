@@ -14,6 +14,10 @@ arguments
     environmentName (1,1) string = "dry_road"
     options.ActuationDelay_s (1,1) double ...
         {mustBeNonnegative} = 0
+    options.DelayMode (1,1) double ...
+        {mustBeMember(options.DelayMode, [1, 2])} = 1
+    options.RandomDelayProfile = []
+    options.RandomSeed (1,1) double = NaN
     options.SaveResults (1,1) logical = true
     options.SaveFigures (1,1) logical = true
     options.ShowFigures (1,1) logical = true
@@ -47,6 +51,9 @@ runConfig.model_name = modelName;
 runConfig.scenario_name = scenarioName;
 runConfig.environment_name = environmentName;
 runConfig.actuation_delay_s = options.ActuationDelay_s;
+runConfig.delay_mode = options.DelayMode;
+runConfig.random_delay_profile = options.RandomDelayProfile;
+runConfig.random_seed = options.RandomSeed;
 
 runConfig.output = struct();
 runConfig.output.save_results = options.SaveResults;
