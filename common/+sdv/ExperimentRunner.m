@@ -25,16 +25,16 @@ classdef ExperimentRunner
             simulationParams = config.simulation;
             adaptiveModelParams = config.adaptiveModel;
     
-            % Phase 1.3 requires the plant to evolve on the fixed simulation grid,
-            % while the controller executes at irregular triggered instants.
-            if runConfig.phase_name == "phase1_trigger"
-                simulationParams.plant_step_s = ...
-                    runConfig.jitter.simulation_step_s;
-            end
+            % % Phase 1.3 requires the plant to evolve on the fixed simulation grid,
+            % % while the controller executes at irregular triggered instants.
+            % if runConfig.phase_name == "phase1_trigger"
+            %     simulationParams.plant_step_s = ...
+            %         runConfig.jitter.simulation_step_s;
+            % end
 
             % Preserve the effective configuration in saved results.
             config.simulation = simulationParams;
-            
+
             % Make direct scenario runners reproducible in a clean MATLAB
             % session, including adding the generated acados S-function.
             check_runtime_requirements(controllerParams); % can be removed since done in main.m file
@@ -122,13 +122,15 @@ classdef ExperimentRunner
 
             if runConfig.phase_name == "phase1_trigger"
                 results.jitter_event_table = jitterEventTable;
+                actualSimulationEnd_s = ...
+                    double(simulationOutput.tout(end));
+
                 executionValidation = ...
                     validate_controller_executions( ...
                         logs, ...
                         jitterEventTable, ...
-                        results.time_s(end), ...
+                        actualSimulationEnd_s, ...
                         runConfig.jitter.simulation_step_s);
-
                 results.execution_validation = ...
                     executionValidation;
                 results.controller_execution_log = ...
@@ -157,11 +159,11 @@ classdef ExperimentRunner
                         simulationParams.initial_yaw_rad);
 
                 results.performance_monitor = performanceMonitor;
-                results.vx_ref_mps = ...
-                    performanceMonitor.reference_speed_mps;
-                results.ev_mps = performanceMonitor.ev_mps;
-                results.ey_m = performanceMonitor.ey_m;
-                results.epsi_rad = performanceMonitor.epsi_rad;
+                % results.vx_ref_mps = ...
+                %     performanceMonitor.reference_speed_mps;
+                % results.ev_mps = performanceMonitor.ev_mps;
+                % results.ey_m = performanceMonitor.ey_m;
+                % results.epsi_rad = performanceMonitor.epsi_rad;
 
                 % Solve-time statistics must contain one observation per
                 % controller invocation, never held base-rate samples.
