@@ -43,6 +43,17 @@ codegen/
 phase*/results/*
 !phase*/results/.gitkeep
 
+# Generated experiment artifacts
+phase*/figures/*
+!phase*/figures/.gitkeep
+phase*/logs/*
+!phase*/logs/.gitkeep
+
+# Local generated build output
+build/
+phase*/build/
+common/controllers/acados/test/build/
+
 # Local machine configuration
 local_config.m
 secrets.m

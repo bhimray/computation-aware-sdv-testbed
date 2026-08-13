@@ -93,3 +93,75 @@ verifyEqual(testCase, monitor.epsi_rad, zeros(3,1), ...
     AbsTol=1e-12);
 
 end
+
+function testRandomDelayConfiguration(testCase)
+
+profile = timeseries([0; 0.01], [0; 1]);
+runConfig = sdv.config.createRun( ...
+    "phase1", "highway_cruise", "dry_road", ...
+    DelayMode=2, ...
+    RandomDelayProfile=profile, ...
+    RandomSeed=42);
+
+verifyEqual(testCase, runConfig.delay_mode, 2);
+verifyEqual(testCase, runConfig.random_seed, 42);
+verifyEqual(testCase, runConfig.random_delay_profile, profile);
+
+end
+
+function testZeroDelayResidual(testCase)
+
+time_s = (0:0.1:1).';
+command = sin(time_s);
+
+metrics = sdv.timing.computeDelayResidual( ...
+    time_s, command, time_s, command, [0; 1], [0; 0]);
+
+verifyTrue(testCase, metrics.within_tolerance);
+verifyEqual(testCase, metrics.maximum_absolute, 0, AbsTol=1e-12);
+verifyEqual(testCase, metrics.excluded_sample_count, 0);
+
+end
+
+
+function testConstantDelayResidual(testCase)
+
+time_s = (0:0.1:1).';
+command = (1:numel(time_s)).';
+delay_s = 0.2;
+queryTime_s = time_s - delay_s;
+valid = queryTime_s >= time_s(1);
+applied = zeros(size(command));
+applied(valid) = interp1( ...
+    time_s, command, queryTime_s(valid), "previous");
+
+metrics = sdv.timing.computeDelayResidual( ...
+    time_s, command, time_s, applied, ...
+    [0; 1], delay_s*ones(2,1));
+
+verifyTrue(testCase, metrics.within_tolerance);
+verifyEqual(testCase, metrics.maximum_absolute, 0, AbsTol=1e-12);
+verifyEqual(testCase, metrics.excluded_sample_count, 2);
+
+end
+
+
+function testVariableDelayResidual(testCase)
+
+time_s = (0:0.1:1).';
+command = (1:numel(time_s)).';
+delay_s = [0; 0; 0.1; 0.1; 0.2; 0.2; 0.1; 0; 0.2; 0.1; 0];
+queryTime_s = time_s - delay_s;
+valid = queryTime_s >= time_s(1);
+applied = zeros(size(command));
+applied(valid) = interp1( ...
+    time_s, command, queryTime_s(valid), "previous");
+
+metrics = sdv.timing.computeDelayResidual( ...
+    time_s, command, time_s, applied, time_s, delay_s);
+
+verifyTrue(testCase, metrics.within_tolerance);
+verifyEqual(testCase, metrics.maximum_absolute, 0, AbsTol=1e-12);
+verifyEqual(testCase, metrics.valid_sample_count, nnz(valid));
+
+end

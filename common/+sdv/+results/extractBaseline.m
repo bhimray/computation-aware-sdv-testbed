@@ -83,9 +83,40 @@ results.solve_status_time_s = toColumn(statusSignal.Time);
 results.road_friction_time_s = toColumn(frictionSignal.Time);
 results.road_friction_mu = toColumn(frictionSignal.Data);
 results.torque_applied_Nm = toColumn(torqueAppliedSignal.Data);
-results.torque_applied_time = toColumn(torqueAppliedSignal.Time);
+results.torque_applied_time_s = ...
+    toColumn(torqueAppliedSignal.Time);
+results.torque_applied_time = ...
+    results.torque_applied_time_s;
 results.steering_applied_angle_rad = toColumn(steeringAppliedSignal.Data);
-results.steering_applied_time = toColumn(steeringAppliedSignal.Time);
+results.steering_applied_time_s = ...
+    toColumn(steeringAppliedSignal.Time);
+results.steering_applied_time = ...
+    results.steering_applied_time_s;
+
+availableSignals = string(logs.getElementNames);
+hasDelayCommandTelemetry = all(ismember( ...
+    ["torque_after_gain", "steering_angle_after_gain"], ...
+    availableSignals));
+
+if hasDelayCommandTelemetry
+    torqueCommandSignal = logs.get("torque_after_gain").Values;
+    steeringCommandSignal = ...
+        logs.get("steering_angle_after_gain").Values;
+
+    results.torque_command_Nm = ...
+        toColumn(torqueCommandSignal.Data);
+    results.torque_command_time_s = ...
+        toColumn(torqueCommandSignal.Time);
+    results.steering_command_angle_rad = ...
+        toColumn(steeringCommandSignal.Data);
+    results.steering_command_time_s = ...
+        toColumn(steeringCommandSignal.Time);
+else
+    results.torque_command_Nm = zeros(0,1);
+    results.torque_command_time_s = zeros(0,1);
+    results.steering_command_angle_rad = zeros(0,1);
+    results.steering_command_time_s = zeros(0,1);
+end
 results.cput_time_qp_s = toColumn(cputimeQPSignal.Data);
 results.cput_time_qp_time_s = toColumn(cputimeQPSignal.Time);
 results.cput_time_sim_s = toColumn(cputtimeSIMSignal.Data);

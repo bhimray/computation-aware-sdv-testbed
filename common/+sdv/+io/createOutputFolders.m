@@ -17,11 +17,23 @@ end
 pathParts = [phaseFolderName; controllerName];
 
 if runConfig.phase_name == "phase1"
-    delayMilliseconds = 1e3 * runConfig.actuation_delay_s;
-    delayText = string(sprintf("%g", delayMilliseconds));
-    delayText = replace(delayText, ".", "p");
-    pathParts(end + 1) = ...
-        "actuation_delay_" + delayText + "_ms";
+    if runConfig.delay_mode == 2
+        maximumDelay_ms = 1e3 * max( ...
+            runConfig.random_delay_profile.Data, [], "all");
+        delayText = replace( ...
+            string(sprintf("%g", maximumDelay_ms)), ".", "p");
+        pathParts(end + 1) = "random_delay";
+        pathParts(end + 1) = ...
+            "maximum_delay_" + delayText + "_ms";
+        pathParts(end + 1) = ...
+            "seed_" + string(runConfig.random_seed);
+    else
+        delayMilliseconds = 1e3 * runConfig.actuation_delay_s;
+        delayText = string(sprintf("%g", delayMilliseconds));
+        delayText = replace(delayText, ".", "p");
+        pathParts(end + 1) = ...
+            "actuation_delay_" + delayText + "_ms";
+    end
 elseif runConfig.phase_name == "phase1_trigger"
     jitterText = string(sprintf( ...
         "%g", runConfig.jitter.bound_ms));
