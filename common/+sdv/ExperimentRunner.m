@@ -24,7 +24,17 @@ classdef ExperimentRunner
             controllerParams = config.controller;
             simulationParams = config.simulation;
             adaptiveModelParams = config.adaptiveModel;
+    
+            % Phase 1.3 requires the plant to evolve on the fixed simulation grid,
+            % while the controller executes at irregular triggered instants.
+            if runConfig.phase_name == "phase1_trigger"
+                simulationParams.plant_step_s = ...
+                    runConfig.jitter.simulation_step_s;
+            end
 
+            % Preserve the effective configuration in saved results.
+            config.simulation = simulationParams;
+            
             % Make direct scenario runners reproducible in a clean MATLAB
             % session, including adding the generated acados S-function.
             check_runtime_requirements(controllerParams); % can be removed since done in main.m file
