@@ -1,4 +1,7 @@
-function [results, timingTable] = run_phase2_tool_spike()
+function [results, timingTable] = run_phase2_tool_spike( ...
+    stopTime_s, ...
+    controlTaskDuration ...
+    )
 %RUN_PHASE2_TOOL_SPIKE Run and document the Phase 2.1 tool spike.
 
 startup_project;
@@ -8,7 +11,7 @@ startup_project;
 project = matlab.project.currentProject;
 projectRoot = string(project.RootFolder);
 
-modelName = "phase2_soc_tool_spike";
+modelName = "phase2_scheduler_testbed";
 
 resultsFolder = fullfile( ...
     projectRoot, ...
@@ -29,8 +32,6 @@ if ~isfolder(figuresFolder)
 end
 
 %% Experiment configuration
-
-stopTime_s = 0.15;
 
 controlPeriod_s = 0.01;
 nominalControlExecutionTime_s = 0.003;
@@ -53,6 +54,10 @@ set_param( ...
 
 simulationInput = ...
     Simulink.SimulationInput(modelName);
+
+simulationInput = simulationInput.setVariable( ...
+    "controlTaskDuration", ...
+    controlTaskDuration);
 
 simulationInput = ...
     simulationInput.setModelParameter( ...
