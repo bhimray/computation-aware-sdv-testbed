@@ -7,6 +7,7 @@ addpath(fullfile(projectRoot, "common"));
 addpath(genpath(fullfile(projectRoot, "common")));
 addpath(genpath(fullfile(projectRoot, "phase0")));
 addpath(genpath(fullfile(projectRoot, "phase1")));
+addpath(genpath(fullfile(projectRoot, "phase2")));
 
 fprintf("Project initialized from:\n%s\n", projectRoot);
 
