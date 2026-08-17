@@ -6,7 +6,7 @@ startup_project;
 
 scenarioNames = [ ...
     "highway_cruise"
-    "urban_profile"
+    % "urban_profile"s
     "aggressive_maneuver"
     ];
 
@@ -206,11 +206,11 @@ simulationInput = simulationInput.setModelParameter( ...
 
 %% Smoke test
 
-fprintf("\nRunning Phase 2.3 smoke test...\n");
+fprintf("\nRunning Phase 2.3 simulation ...\n");
 
 simulationOutput = sim(simulationInput);
 
-fprintf("Phase 2.3 smoke test completed.\n");
+fprintf("Phase 2.3 simulation completed.\n");
 
 logs = simulationOutput.logsout;
 
