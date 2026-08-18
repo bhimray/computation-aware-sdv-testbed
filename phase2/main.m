@@ -204,7 +204,7 @@ simulationInput = simulationInput.setModelParameter( ...
     SignalLoggingName="logsout", ...
     SignalInfNanChecking="error");
 
-%% Smoke test
+%% Simulation log
 
 fprintf("\nRunning Phase 2.3 simulation ...\n");
 
