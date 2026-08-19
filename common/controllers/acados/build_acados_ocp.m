@@ -61,7 +61,7 @@ ocp.cost.yref_0 = settings.nominal_input;
 %
 % The runtime S-function y_ref input replaces the default reference below.
 
-ocp.cost.cost_type = 'NONLINEAR_LS';
+ocp.cost.cost_type = 'NONLINEAR_LS'; % 
 
 ocp.model.cost_y_expr = vertcat( ...
     model.x, ...

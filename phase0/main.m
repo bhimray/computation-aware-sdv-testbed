@@ -70,8 +70,8 @@ check_runtime_requirements(controller);
 
 environmentNames = [
     "dry_road"
-    "low_friction_road"
-    "sudden_friction_drop"
+    % "low_friction_road"
+    % "sudden_friction_drop"
     ];
 
 for environmentName = environmentNames.'
@@ -82,5 +82,5 @@ for environmentName = environmentNames.'
 
     % run_urban_profile(environmentName);
     run_highway_cruise(environmentName);
-    run_aggressive_maneuver(environmentName);
+    % run_aggressive_maneuver(environmentName);
 end

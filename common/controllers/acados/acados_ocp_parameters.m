@@ -45,8 +45,9 @@ assert(all(settings.input_scale > 0));
 %% Dimensionless tracking and effort weights
 
 settings.Q = diag(controller.output_weights);
+settings.Q_terminal = diag(controller.terminal_output_weights);
 settings.R = diag(controller.input_weights);
-settings.Q_terminal = settings.Q;
+settings.Q_terminal = settings.Q_terminal;
 
 %% Nominal input reference
 
@@ -78,7 +79,7 @@ settings.slack_penalty_epsi = controller.slackPenalty_epsi;
 %% acados solver configuration
 
 % Nonlinear solver
-settings.nlp_solver_type = 'SQP';   % use 'SQP_RTI'/'SQP' for debugging
+settings.nlp_solver_type = 'SQP_RTI';   % use 'SQP_RTI'/'SQP' for debugging
 
 % Hessian approximation
 % Equivalent to:
@@ -86,7 +87,7 @@ settings.nlp_solver_type = 'SQP';   % use 'SQP_RTI'/'SQP' for debugging
 settings.hessian_approximation = 'GAUSS_NEWTON';
 
 % Numerical integration
-settings.integrator_type = 'ERK';
+settings.integrator_type = 'ERK'; % 'IRK', 'ERK', 'LIFTED_IRK'
 settings.integration_stages = 4;
 settings.integration_steps = 3;
 
@@ -103,8 +104,10 @@ settings.nlp_solver_tol_ineq = 1e-4;
 settings.nlp_solver_tol_comp = 1e-4;
 
 % Mainly relevant when using full SQP
-settings.maximum_nlp_iterations = 5;
+settings.maximum_nlp_iterations = 50;
 
-settings.globalization = 'MERIT_BACKTRACKING';
+settings.globalization = 'FIXED_STEP';
+settings.alpha_min = controller.Ts_s;
+settings.print_level = 1;
 
 end

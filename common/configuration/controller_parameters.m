@@ -15,8 +15,8 @@ controller.minimum_linearization_speed_mps = 0.5;
 
 %% Initial MPC horizon values in second
 
-controller.prediction_horizon_s = 0.50;
-controller.control_horizon_s = 0.30;
+controller.prediction_horizon_s = 1.0;
+controller.control_horizon_s = 1.0;
 
 %% Backend selection
 controller.BACKEND_ACADOS = 1;
@@ -83,11 +83,16 @@ controller.nominal_state = [
     ];
 
 %% weights
+% [vx, vy, yaw_rate, ey, epsi]
 controller.output_weights = ...
     [0.1 0.1 1 0.1 0.01];
 
+controller.terminal_output_weights = ...
+    [0.01 0.01 1 0.1 0.1];
+
+% [torque, steering_angle]
 controller.input_weights = ...
-    [0.1 0.1];
+    [0.01 0.1];
 controller.input_rate_weights = [0.1 0.1];
 
 %% Nominal linearization operating point
@@ -217,7 +222,7 @@ controller.stateConstraintECR = ones(5,1);
 
 % Penalty applied to constraint violation.
 controller.slackPenalty_ey = 1e5;
-controller.slackPenalty_epsi = 1e5; %1e0 not able to follow highway-cruise traj but aggressive
+controller.slackPenalty_epsi = 1e5; % 1e0 not able to follow highway-cruise traj but aggressive
 
 controller.enableIntermediateStateConstraints = true;
 controller.enableTerminalStateConstraints = false;
