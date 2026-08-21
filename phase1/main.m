@@ -24,6 +24,6 @@ prepare_phase1_runtime(scenarioName);
 %     ShowFigures=true);
 
 % Batch studies remain separate:
-%   run_constant_delay_sweep(...)
+  run_constant_delay_sweep()
 %   run_random_delay_sweep(...)
-  run_sampling_jitter_monte_carlo()
+%   run_sampling_jitter_monte_carlo()

@@ -70,7 +70,7 @@ check_runtime_requirements(controller);
 
 environmentNames = [
     "dry_road"
-    % "low_friction_road"
+    "low_friction_road"
     % "sudden_friction_drop"
     ];
 
