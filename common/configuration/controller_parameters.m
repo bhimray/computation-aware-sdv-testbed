@@ -20,8 +20,7 @@ controller.control_horizon_s = 1.0;
 
 %% Backend selection
 controller.BACKEND_ACADOS = 1;
-controller.BACKEND_MATLAB = 2; %% NOT WORKING
-controller.BACKEND_ADAPTIVE = 3;
+controller.BACKEND_ADAPTIVE = 2;
 
 controller.controller_backend = ...
     controller.BACKEND_ACADOS;
