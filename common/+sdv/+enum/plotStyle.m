@@ -3,7 +3,7 @@ classdef plotStyle
         LineSpec (1,:) char
     end
     methods
-        function obj = PlotStyle(ls)
+        function obj = plotStyle(ls)
             obj.LineSpec = ls;
         end
     end

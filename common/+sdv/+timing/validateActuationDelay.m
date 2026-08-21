@@ -18,7 +18,7 @@ requiredFields = [ ...
     "steering_command_time_s"
     "steering_command_angle_rad"
     "steering_applied_time_s"
-    "steering_applied_angle_rad"
+    "steering_applied_angle_deg"
     ];
 
 missingFields = setdiff( ...

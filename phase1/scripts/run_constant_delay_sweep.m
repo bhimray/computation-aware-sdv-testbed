@@ -1,15 +1,9 @@
-function [summaryTable, sweepFigure] = ...
-    run_constant_delay_sweep(options)
-%RUN_CONSTANT_DELAY_SWEEP Run Phase 1.1 constant-delay experiments.
-
+function [summaryTable, sweepFigure] = run_constant_delay_sweep(options)
 arguments
-    options.ScenarioNames (1,:) string = ...
-        ["urban_profile", "aggressive_maneuver", "highway_cruise"]
-
-    options.EnvironmentNames (1,:) string = ["dry_road", "low_friction_road"]
-
-    options.Delay_ms (1,:) double ...
-        {mustBeNonnegative} = 0:5:100
+    % use enum defaults
+    options.ScenarioNames (1,:) ScenarioName = [ScenarioName.urban_profile, ScenarioName.aggressive_maneuver, ScenarioName.highway_cruise]
+    options.EnvironmentNames (1,:) EnvironmentName = [EnvironmentName.dry_road, EnvironmentName.low_friction_road]
+    options.Delay_ms (1,:) double {mustBeNonnegative} = 0:5:100
 end
 
 startup_project;
@@ -101,8 +95,8 @@ figureFolder = fullfile( ...
     "phase1", ...
     "figures", ...
     controllerName, ...
-    "constant_delay_sweep", ...
-    environmentName);
+    "constant_delay_sweep" ...
+    );
 
 sdv.io.exportFigure( ...
     sweepFigure, ...
@@ -114,6 +108,7 @@ end
 function figureHandle = plotDelaySweepMetrics(summaryTable)
 %PLOTDELAYSWEEPMETRICS Plot per-run metrics against delay tau.
 
+%% check if the enviroment is handled properly
 figureHandle = figure( ...
     Name="Phase 1.1 constant-delay sweep", ...
     Color="white");
@@ -147,11 +142,12 @@ title("Peak lateral error");
 grid on;
 
 nexttile(layout);
+%% TODO: change heading error into angle before plotting
 plotMetric( ...
     summaryTable, scenarioNames, ...
-    "speed_rmse_mps");
-ylabel("Speed RMSE (m/s)");
-title("Longitudinal tracking RMS");
+    "heading_rmse_rad");
+ylabel("Heading RMSE (rad)");
+title("Heading RMS");
 grid on;
 
 nexttile(layout);
@@ -173,7 +169,7 @@ function plotMetric(summaryTable, scenarioNames, variableName)
 hold on;
 
 environmentNames = unique(summaryTable.environment_name, "stable");
-styles = plotStyle.enumeration;
+styles = enumeration('sdv.plot.plotStyle');
 nStyles = numel(styles);
 colors = lines(max(1,numel(environmentNames)));
 
