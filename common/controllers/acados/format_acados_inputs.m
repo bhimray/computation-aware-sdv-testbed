@@ -5,26 +5,31 @@ function [ ...
     pathReference, ...
     terminalReference] = ...
     format_acados_inputs( ...
-    measuredState, ...
+    measuredVehicleState, ...
+    appliedCommand, ...
     stateReference, ...
     curvatureReference, ...
-    nominalInput, ...
     numberOfIntervals)
 %FORMAT_ACADOS_INPUTS Format signals for the generated S-function.
 
-measuredState = measuredState(:);
+measuredVehicleState = measuredVehicleState(:);
+appliedCommand = appliedCommand(:);
 stateReference = stateReference(:);
-nominalInput = nominalInput(:);
 
-assert(numel(measuredState) == 5);
+assert(numel(measuredVehicleState) == 5);
+assert(numel(appliedCommand) == 2);
 assert(numel(stateReference) == 5);
-assert(numel(nominalInput) == 2);
 assert(numberOfIntervals >= 2);
 
 % Equal lower and upper bounds fix the initial predicted state to the
-% currently measured controller state.
-lowerInitialState = measuredState;
-upperInitialState = measuredState;
+% measured vehicle state and the current physical actuator commands.
+augmentedInitialState = [
+    measuredVehicleState
+    appliedCommand
+    ];
+
+lowerInitialState = augmentedInitialState;
+upperInitialState = augmentedInitialState;
 
 % One curvature parameter for every state node, including the terminal node.
 curvatureTrajectory = repmat( ...
@@ -33,10 +38,11 @@ curvatureTrajectory = repmat( ...
     1);
 
 % Intermediate-stage reference:
-% [five states; torque reference; steering reference].
+% [five vehicle states; two physical commands; two command rates].
 singleStageReference = [
     stateReference
-    nominalInput
+    zeros(2,1)
+    zeros(2,1)
     ];
 
 pathReference = repmat( ...

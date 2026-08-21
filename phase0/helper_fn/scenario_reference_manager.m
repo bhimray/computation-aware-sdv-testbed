@@ -35,6 +35,17 @@ distanceSquared = ...
 trackIndex = candidateIndices(localIndex);
 trackIndex = max(trackIndex,previousIndex);
 
+% Release the initial zero-speed spatial point.
+% Later zero-speed stop points are handled by the dwell-state logic.
+if previousIndex == 1 && ...
+        trackIndex == 1 && ...
+        numberOfPoints > 1 && ...
+        trackReferenceTable(1,6) == 0 && ...
+        trackReferenceTable(2,6) > 0
+
+    trackIndex = 2;
+end
+
 stopStatus = zeros(1,4);
 numberOfStops = size(stopEventTable,1);
 

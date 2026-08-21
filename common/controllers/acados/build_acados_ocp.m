@@ -4,10 +4,11 @@ function [ocp, metadata] = ...
 %BUILD_ACADOS_OCP Construct the nonlinear acados OCP.
 %
 % States:
-%   x = [vx; vy; yaw_rate; lateral_error; heading_error]
+%   x = [vx; vy; yaw_rate; lateral_error; heading_error; ...
+%        front_axle_torque; road_wheel_angle]
 %
 % Inputs:
-%   u = [front_axle_torque; road_wheel_angle]
+%   u = [front_axle_torque_rate; road_wheel_angle_rate]
 %
 % The generated solver always enforces input magnitude limits.
 % Intermediate and terminal state constraints can be independently enabled
@@ -20,7 +21,7 @@ settings = acados_ocp_parameters(controller);
 [model, ~] = ...
     build_acados_prediction_model(modelParameters);
 
-nx = 5;
+nx = 7;
 nu = 2;
 N  = settings.number_of_intervals;
 
@@ -46,34 +47,41 @@ ocp.model = model;
 
 %% Stage-zero cost
 %
-% The state at stage zero is fixed using lbx_0 = ubx_0 = measuredState.
-% Therefore, only the stage-zero input is penalized here.
+% The complete state at stage zero is fixed using lbx_0 = ubx_0. Penalize
+% physical command effort and the first optimized command-rate move.
 
 ocp.cost.cost_type_0 = 'NONLINEAR_LS';
-ocp.model.cost_y_expr_0 = model.u;
-ocp.cost.W_0 = settings.R;
-ocp.cost.yref_0 = settings.nominal_input;
+ocp.model.cost_y_expr_0 = vertcat( ...
+    model.x(6:7), ...
+    model.u);
+ocp.cost.W_0 = blkdiag( ...
+    settings.R_command, ...
+    settings.R_rate);
+ocp.cost.yref_0 = zeros(4,1);
 
 %% Intermediate-stage cost
 %
 % Cost output:
-%   y_k = [x_k; u_k]
+%   y_k = [vehicle_states_k; physical_commands_k; command_rates_k]
 %
 % The runtime S-function y_ref input replaces the default reference below.
 
 ocp.cost.cost_type = 'NONLINEAR_LS'; % 
 
 ocp.model.cost_y_expr = vertcat( ...
-    model.x, ...
-    model.u);
+    model.x(1:5), ...   % Vehicle tracking states
+    model.x(6:7), ...   % Physical torque and steering
+    model.u);           % Torque and steering rates
 
 ocp.cost.W = blkdiag( ...
-    settings.Q, ...
-    settings.R);
+    settings.Q_vehicle, ...
+    settings.R_command, ...
+    settings.R_rate);
 
 ocp.cost.yref = [
-    controller.nominal_state
-    settings.nominal_input
+    controller.nominal_state(1:5)
+    zeros(2,1)    % Zero physical-command reference
+    zeros(2,1)    % Zero command-rate reference
     ];
 
 %% Terminal cost
@@ -81,13 +89,14 @@ ocp.cost.yref = [
 % Only the terminal state is penalized.
 
 ocp.cost.cost_type_e = 'NONLINEAR_LS';
-ocp.model.cost_y_expr_e = model.x;
+ocp.model.cost_y_expr_e = model.x(1:5);
 ocp.cost.W_e = settings.Q_terminal;
-ocp.cost.yref_e = controller.nominal_state;
+ocp.cost.yref_e = controller.nominal_state(1:5);
 
-%% Input magnitude constraints
+%% Optimizer-input rate constraints
 %
-% These are hard constraints applied throughout the prediction horizon.
+% These are hard torque-rate and steering-rate constraints applied
+% throughout the prediction horizon.
 %
 %   minimum_input <= u_k <= maximum_input
 
@@ -107,19 +116,24 @@ ocp.constraints.ubu = settings.maximum_input;
 if enableIntermediateStateConstraints || ...
         enableTerminalStateConstraints
 
-    constrainedStateIndices = [3; 4];
+    constrainedStateIndices = [3; 4; 5; 6];
     softenedBoundIndices = [0; 1];
 
     pathStateMinimum = [
         settings.minimum_state(4)   % Minimum lateral error, m
         settings.minimum_state(5)   % Minimum heading error, rad
+        settings.minimum_state(6)   % Minimum torque, Nm
+        settings.minimum_state(7)   % Minimum steering, rad
+        
         ];
 
     pathStateMaximum = [
         settings.maximum_state(4)   % Maximum lateral error, m
         settings.maximum_state(5)   % Maximum heading error, rad
+        settings.maximum_state(6)   % Maximum torque, Nm
+        settings.maximum_state(7)   % Maximum steering, rad
         ];
-
+       
     slackPenalty = [
         settings.slack_penalty_ey
         settings.slack_penalty_epsi

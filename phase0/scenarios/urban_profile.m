@@ -11,6 +11,7 @@ ds_m = 0.25;
 straightLength_m = 150;
 turnRadius_m = 30;
 rampLength_m = 10;
+minimumUrbanSpeed_mps = 2.0;
 constantTurnLength_m = pi*turnRadius_m/2-rampLength_m;
 turnLength_m = 2*rampLength_m+constantTurnLength_m;
 totalLength_m = 4*straightLength_m+3*turnLength_m;
@@ -27,7 +28,7 @@ end
 [X_ref_m,Y_ref_m,psi_ref_rad] = ...
     integrate_spatial_curvature(station_m,curvature_1pm);
 
-urbanSpeedLimit_mps = 13.4;
+urbanSpeedLimit_mps = 15;
 localSpeedLimit_mps = urbanSpeedLimit_mps*ones(size(station_m));
 
 stopStations_m = [ ...
@@ -35,10 +36,15 @@ stopStations_m = [ ...
     turnStarts_m(3)-20];
 for stopStation_m = stopStations_m'
     [~,stopIndex] = min(abs(station_m-stopStation_m));
-    localSpeedLimit_mps(stopIndex) = 0;
+    localSpeedLimit_mps(stopIndex) = minimumUrbanSpeed_mps;
 end
 
-profile = phase0_profile_parameters(vehicle,0,8^2/turnRadius_m);
+launchReferenceSpeed_mps = 5;
+
+profile = phase0_profile_parameters(vehicle, ...
+    launchReferenceSpeed_mps, ...
+    8^2/turnRadius_m ...
+    );
 [vx_ref_mps,curvatureLimit_mps,forwardSpeed_mps,traversalTime_s] = ...
     three_pass_speed_profile(station_m,curvature_1pm, ...
     localSpeedLimit_mps,profile);
@@ -46,15 +52,15 @@ profile = phase0_profile_parameters(vehicle,0,8^2/turnRadius_m);
 % Enforce exact zeros at the event samples after numerical profile passes.
 for stopStation_m = stopStations_m'
     [~,stopIndex] = min(abs(station_m-stopStation_m));
-    vx_ref_mps(stopIndex) = 0;
+    vx_ref_mps(stopIndex) = minimumUrbanSpeed_mps;
 end
 
-stopEventTable = zeros(2,5);
-stopEventTable(:,1) = 1;             % active
-stopEventTable(:,2) = stopStations_m;
-stopEventTable(:,3) = 3.0;           % dwell duration, s
-stopEventTable(:,4) = 1.0;           % capture distance, m
-stopEventTable(:,5) = 0.15;          % capture speed, m/s
+% stopEventTable = zeros(2,5);
+% stopEventTable(:,1) = 1;             % active
+% stopEventTable(:,2) = stopStations_m;
+% stopEventTable(:,3) = 3.0;           % dwell duration, s
+% stopEventTable(:,4) = 1.0;           % capture distance, m
+% stopEventTable(:,5) = 0.15;          % capture speed, m/s
 
 track = struct();
 track.name = "urban_profile";
@@ -70,14 +76,14 @@ track.local_speed_limit_mps = localSpeedLimit_mps;
 track.vx_ref_mps = vx_ref_mps;
 track.curvature_speed_limit_mps = curvatureLimit_mps;
 track.forward_pass_speed_mps = forwardSpeed_mps;
-track.initial_speed_mps = 0;
+track.initial_speed_mps = vx_ref_mps(1);
 track.maximum_lateral_acceleration_mps2 = 8^2/turnRadius_m;
 track.total_length_m = station_m(end);
 track.traversal_time_s = traversalTime_s;
-track.simulation_stop_time_s = ceil(traversalTime_s+sum(stopEventTable(:,3)));
+track.simulation_stop_time_s = ceil(traversalTime_s + 10); %ceil(traversalTime_s+sum(stopEventTable(:,3)));
 track.road_friction_mu = vehicle.default_road_friction_mu;
 track.slope_rad = 0;
-track.stop_event_table = stopEventTable;
+track.stop_event_table = zeros(2,5); %stopEventTable;
 track.profile_parameters = profile;
 
 track = save_phase0_scenario(track,outputFolder,true);

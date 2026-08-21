@@ -38,7 +38,7 @@ stateReference = [
     0
     ];
 
-[command, commonStatus, solveTime_s, diagnostics] = ...
+[rateCommand, commonStatus, solveTime_s, diagnostics] = ...
     solve_acados_step( ...
     solver, ...
     metadata, ...
@@ -48,6 +48,6 @@ stateReference = [
 
 fprintf("Raw status:    %d\n", diagnostics.raw_status);
 fprintf("Common status: %d\n", commonStatus);
-fprintf("Torque:        %.6f N*m\n", command(1));
-fprintf("Steering:      %.9f rad\n", command(2));
+fprintf("Torque rate:   %.6f N*m/s\n", rateCommand(1));
+fprintf("Steering rate: %.9f rad/s\n", rateCommand(2));
 fprintf("Solve time:    %.6f ms\n", solveTime_s * 1e3);

@@ -31,6 +31,10 @@ end
 
 % Enable the standardized backend outputs.
 options.outputs.u0 = 1; % true
+% x1 contains the state after one ERK prediction interval. Its final two
+% elements are the physical torque and steering commands obtained by
+% integrating the optimized rate inputs.
+options.outputs.x1 = 1;
 options.outputs.solver_status = 1;
 options.outputs.CPU_time = 1;
 options.outputs.CPU_time_sim = 1;

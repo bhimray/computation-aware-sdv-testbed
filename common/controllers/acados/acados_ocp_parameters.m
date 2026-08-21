@@ -21,7 +21,7 @@ assert( ...
     < 1e-10, ...
     "Prediction horizon must be divisible by the sample time.");
 
-%% State and input scales
+%% State, command, and command-rate scales
 
 settings.state_scale = max( ...
     abs([ ...
@@ -39,33 +39,56 @@ settings.input_scale = max( ...
     [], ...
     2);
 
+settings.input_rate_scale = max( ...
+    abs([ ...
+        controller.minimumSignedTorqueRate_Nmps, ...
+        controller.maximumSignedTorqueRate_Nmps
+        controller.minimumRoadWheelRate_radps, ...
+        controller.maximumRoadWheelRate_radps]), ...
+    [], ...
+    2);
+
 assert(all(settings.state_scale > 0));
 assert(all(settings.input_scale > 0));
+assert(all(settings.input_rate_scale > 0));
 
-%% Dimensionless tracking and effort weights
+%% Dimensionless tracking, command-effort, and command-rate weights
 
-settings.Q = diag(controller.output_weights);
-settings.Q_terminal = diag(controller.terminal_output_weights);
-settings.R = diag(controller.input_weights);
-settings.Q_terminal = settings.Q_terminal;
+settings.Q_vehicle = diag( ...
+    controller.output_weights(:) ...
+    ./ settings.state_scale(1:5).^2);
 
-%% Nominal input reference
+settings.Q_terminal = diag( ...
+    controller.terminal_output_weights(:) ...
+    ./ settings.state_scale(1:5).^2);
 
+settings.R_command = diag( ...
+    controller.input_weights(:) ...
+    ./ settings.input_scale.^2);
+
+settings.R_rate = diag( ...
+    controller.input_rate_weights(:) ...
+    ./ settings.input_rate_scale.^2);
+
+%% Nominal optimizer-input reference
+% The optimizer inputs are torque rate and road-wheel-angle rate. Their
+% reference is zero because the controller should avoid unnecessary command
+% motion; the physical torque and steering angle are states x(6:7).
 settings.nominal_input = [
-    controller.nominal_signed_front_axle_torque_Nm
-    controller.nominal_road_wheel_angle_rad
+    0
+    0
     ];
 
-%% Input magnitude limits
+%% Optimizer-input rate limits
 
 settings.minimum_input = [
-    controller.minimumSignedTorque_Nm
-    controller.minimumRoadWheelAngle_rad
+    controller.minimumSignedTorqueRate_Nmps
+    controller.minimumRoadWheelRate_radps
     ];
 
 settings.maximum_input = [
-    controller.maximumSignedTorque_Nm
-    controller.maximumRoadWheelAngle_rad
+    controller.maximumSignedTorqueRate_Nmps
+    controller.maximumRoadWheelRate_radps
     ];
 
 %% State limits retained for later soft constraints
@@ -79,7 +102,7 @@ settings.slack_penalty_epsi = controller.slackPenalty_epsi;
 %% acados solver configuration
 
 % Nonlinear solver
-settings.nlp_solver_type = 'SQP_RTI';   % use 'SQP_RTI'/'SQP' for debugging
+settings.nlp_solver_type = 'SQP';   % use 'SQP_RTI'/'SQP' for debugging
 
 % Hessian approximation
 % Equivalent to:
