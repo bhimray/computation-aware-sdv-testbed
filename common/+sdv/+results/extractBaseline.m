@@ -113,14 +113,14 @@ if hasDelayCommandTelemetry
         toColumn(torqueCommandSignal.Data);
     results.torque_command_time_s = ...
         toColumn(torqueCommandSignal.Time);
-    results.steering_command_angle_rad = ...
+    results.steering_command_angle_deg = ...
         toColumn(steeringCommandSignal.Data);
     results.steering_command_time_s = ...
         toColumn(steeringCommandSignal.Time);
 else
     results.torque_command_Nm = zeros(0,1);
     results.torque_command_time_s = zeros(0,1);
-    results.steering_command_angle_rad = zeros(0,1);
+    results.steering_command_angle_deg = zeros(0,1);
     results.steering_command_time_s = zeros(0,1);
 end
 results.cput_time_qp_s = toColumn(cputimeQPSignal.Data);

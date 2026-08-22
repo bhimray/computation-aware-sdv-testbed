@@ -2,9 +2,9 @@ function validation = validate_sampling_jitter_case( ...
     results, controller, jitterBound_ms, simulationStep_s)
 %VALIDATE_SAMPLING_JITTER_CASE Validate one Phase 1.3 simulation.
 %
-% Common solver-status convention:
-%   1  = success
-%  -1  = failure
+% Raw acados solver-status convention:
+%   0        = success
+%   nonzero  = failure
 
 arguments
     results (1,1) struct
@@ -48,10 +48,7 @@ assert(all(solveTime_s >= 0), ...
 
 solverStatus = executionLog.SolverStatus(:);
 
-% Simulink has already converted the acados status:
-% raw acados 0 -> common success 1
-% raw acados nonzero -> common failure -1
-failedSolve = solverStatus ~= 1;
+failedSolve = solverStatus ~= 0;
 
 %% Check realized sampling jitter
 
@@ -74,6 +71,11 @@ validation = struct();
 
 validation.execution_count = height(executionLog);
 validation.failed_solve_count = nnz(failedSolve);
+validation.raw_status_0_count = nnz(solverStatus == 0);
+validation.raw_status_2_count = nnz(solverStatus == 2);
+validation.raw_status_4_count = nnz(solverStatus == 4);
+validation.other_raw_status_count = ...
+    nnz(~ismember(solverStatus, [0 2 4]));
 
 validation.deadline_miss_count = ...
     nnz(solveTime_s > controller.Ts_s);
@@ -108,9 +110,10 @@ validation.passed = ...
 % end
 
 fprintf( ...
-    "Phase 1.3 validation passed: " + ...
-    "%d executions, %d deadline misses.\n", ...
+    "Phase 1.3 validation completed: " + ...
+    "%d executions, %d nonzero statuses, %d deadline misses.\n", ...
     validation.execution_count, ...
+    validation.failed_solve_count, ...
     validation.deadline_miss_count);
 
 end

@@ -69,9 +69,8 @@ check_runtime_requirements(controller);
 %% Run three scenarios under three environment conditions
 
 environmentNames = [
-    "dry_road"
-    "low_friction_road"
-    % "sudden_friction_drop"
+    sdv.enum.EnvironmentName.dry_road
+    sdv.enum.EnvironmentName.low_friction_road
     ];
 
 for environmentName = environmentNames.'
