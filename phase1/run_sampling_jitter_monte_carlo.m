@@ -11,7 +11,7 @@ arguments
         sdv.enum.EnvironmentName.dry_road, ...
         sdv.enum.EnvironmentName.low_friction_road]
 
-    jitterBounds_ms (1,:) double = [0 2 4 6 8]
+    jitterBounds_ms (1,:) double = [0 2 4 5 6 7 8]
 end
 
 randomSeeds = 1:50;

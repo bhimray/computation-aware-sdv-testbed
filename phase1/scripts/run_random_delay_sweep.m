@@ -17,9 +17,9 @@ arguments
         sdv.enum.EnvironmentName.low_friction_road]
 
     options.MaximumDelay_ms (1,:) double ...
-        {mustBeNonnegative} = [10, 25, 50, 75, 100]
+        {mustBeNonnegative} = [10, 25, 50, 75, 85, 90, 95, 100]
     options.TrialsPerLevel (1,1) double ...
-        {mustBeInteger, mustBePositive} = 20
+        {mustBeInteger, mustBePositive} = 50
     options.BaseSeed (1,1) double ...
         {mustBeInteger, mustBeNonnegative} = 1000
     options.SaveTrialResults (1,1) logical = true
