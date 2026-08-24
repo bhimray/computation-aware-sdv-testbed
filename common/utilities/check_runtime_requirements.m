@@ -36,9 +36,12 @@ if checkBackend && usingAcados
             "acados v0.5.4: run setup_acados_dependency";
     end
 
-    projectRoot = string( ...
-        matlab.project.currentProject().RootFolder);
 
+    projectRoot = string(getenv("PROJECT_ROOT"));
+    if strlength(projectRoot) == 0
+        project = matlab.project.currentProject();
+        projectRoot = string(project.RootFolder);
+    end
     solverDirectory = fullfile( ...
         projectRoot, ...
         "build", ...
