@@ -159,14 +159,6 @@ classdef ExperimentRunner
                         simulationParams.initial_yaw_rad);
 
                 results.performance_monitor = performanceMonitor;
-                % results.vx_ref_mps = ...
-                %     performanceMonitor.reference_speed_mps;
-                % results.ev_mps = performanceMonitor.ev_mps;
-                % results.ey_m = performanceMonitor.ey_m;
-                % results.epsi_rad = performanceMonitor.epsi_rad;
-
-                % Solve-time statistics must contain one observation per
-                % controller invocation, never held base-rate samples.
                 results.held_solve_time_s = results.solve_time_s;
                 results.held_solve_time_time_s = ...
                     results.solve_time_time_s;

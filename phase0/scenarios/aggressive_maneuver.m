@@ -32,20 +32,38 @@ dYds = gradient(Y_ref_m,station_m);
 psi_ref_rad = unwrap(atan2(dYds,dXds));
 curvature_1pm = gradient(psi_ref_rad,station_m);
 
-referenceSpeed_mps = 15;
-localSpeedLimit_mps = referenceSpeed_mps*ones(size(station_m));
-maximumLateralAcceleration_mps2 = ...
-    max(referenceSpeed_mps^2*abs(curvature_1pm))*1.01;
-profile = phase0_profile_parameters(vehicle,referenceSpeed_mps, ...
+%% Generate a feasible spatial speed profile
+
+% This is the requested speed on straight portions, not a command that is
+% imposed at every station. The three-pass profile reduces it where needed
+% to satisfy curvature, tire-force, drive-force, and braking-force limits.
+requestedSpeed_mps = 27;
+localSpeedLimit_mps = ...
+    requestedSpeed_mps * ones(size(station_m));
+
+% A deliberately aggressive but sub-limit lateral-acceleration envelope.
+% Keeping this independent of requested speed is important: deriving it
+% from requestedSpeed_mps^2*max(abs(curvature)) would make the curvature
+% pass accept the requested speed by construction.
+maximumLateralAcceleration_mps2 = 4.0;
+
+profile = phase0_profile_parameters( ...
+    vehicle, requestedSpeed_mps, ...
     maximumLateralAcceleration_mps2);
 
-% This maneuver intentionally uses constant speed; the generated curvature
-% is checked explicitly against its selected aggressive envelope.
-vx_ref_mps = localSpeedLimit_mps;
-curvatureLimit_mps = sqrt(maximumLateralAcceleration_mps2 ./ ...
-    max(abs(curvature_1pm),1e-8));
-forwardSpeed_mps = vx_ref_mps;
-traversalTime_s = station_m(end)/referenceSpeed_mps;
+[vx_ref_mps, curvatureLimit_mps, ...
+    forwardSpeed_mps, traversalTime_s] = ...
+    three_pass_speed_profile( ...
+        station_m, curvature_1pm, ...
+        localSpeedLimit_mps, profile);
+
+achievedLateralAcceleration_mps2 = ...
+    vx_ref_mps.^2 .* abs(curvature_1pm);
+
+assert( ...
+    max(achievedLateralAcceleration_mps2) <= ...
+        maximumLateralAcceleration_mps2 * (1 + 1e-10), ...
+    "Generated aggressive speed profile exceeds its lateral-acceleration limit.");
 
 track = struct();
 track.name = "aggressive_maneuver";
@@ -62,7 +80,8 @@ track.local_speed_limit_mps = localSpeedLimit_mps;
 track.vx_ref_mps = vx_ref_mps;
 track.curvature_speed_limit_mps = curvatureLimit_mps;
 track.forward_pass_speed_mps = forwardSpeed_mps;
-track.initial_speed_mps = referenceSpeed_mps;
+track.initial_speed_mps = vx_ref_mps(1);
+track.requested_speed_mps = requestedSpeed_mps;
 track.maximum_lateral_acceleration_mps2 = ...
     maximumLateralAcceleration_mps2;
 track.total_length_m = station_m(end);

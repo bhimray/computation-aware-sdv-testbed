@@ -31,6 +31,6 @@ prepare_phase1_runtime(scenarioName);
 %     );
 
 %% BATCH RUN
-run_constant_delay_sweep();
-run_random_delay_sweep();
+% run_constant_delay_sweep();
+% run_random_delay_sweep();
 run_sampling_jitter_monte_carlo();

@@ -14,7 +14,7 @@ arguments
     jitterBounds_ms (1,:) double = [0 2 4 5 6 7 8]
 end
 
-randomSeeds = 1:50;
+randomSeeds = 1:20;
 simulationStep_s = 0.0005;
 
 numberOfRuns = ...
