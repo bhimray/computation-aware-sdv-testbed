@@ -5,7 +5,8 @@ arguments
     scenarioNames (1,:) string = [ ...
         sdv.enum.ScenarioName.urban_profile, ...
         sdv.enum.ScenarioName.aggressive_maneuver, ...
-        sdv.enum.ScenarioName.highway_cruise]
+        sdv.enum.ScenarioName.highway_cruise
+        ]
 
     environmentNames (1,:) string = [ ...
         sdv.enum.EnvironmentName.dry_road, ...
@@ -14,6 +15,7 @@ arguments
     jitterBounds_ms (1,:) double = [0 2 4 5 6 7 8]
 end
 
+isSweep = true;
 randomSeeds = 1:20;
 simulationStep_s = 0.0005;
 
@@ -126,7 +128,7 @@ for environmentName = environmentNames
                             randomSeed, ...
                             simulationStep_s, ...
                             SaveResults=true, ...
-                            SaveFigures=false, ...
+                            SaveFigures=true, ...
                             ShowFigures=false);
     
                     tracking = results.tracking_metrics;
@@ -200,8 +202,11 @@ for environmentName = environmentNames
                     "jitterBounds_ms", ...
                     "randomSeeds", ...
                     "simulationStep_s");
-    
-                writetable(sweepSummary, csvFile);
+                
+                %% logging for complete sweep
+                if isSweep
+                    writetable(sweepSummary, csvFile);
+                end
     
                 clear results caseSummary
 

@@ -37,9 +37,32 @@ curvature_1pm = gradient(psi_ref_rad,station_m);
 % This is the requested speed on straight portions, not a command that is
 % imposed at every station. The three-pass profile reduces it where needed
 % to satisfy curvature, tire-force, drive-force, and braking-force limits.
-requestedSpeed_mps = 27;
+initialSpeed_mps = 18;
+requestedSpeed_mps = 25;
+
+% Begin at the lower initial speed, hold it briefly, and then transition
+% smoothly toward the requested straight-line speed before the maneuver.
+initialSpeedHoldEnd_m = 10;
+speedRampEnd_m = 50;
+
 localSpeedLimit_mps = ...
-    requestedSpeed_mps * ones(size(station_m));
+    initialSpeed_mps * ones(size(station_m));
+
+speedRampMask = ...
+    station_m > initialSpeedHoldEnd_m & ...
+    station_m < speedRampEnd_m;
+
+speedRampCoordinate = ( ...
+    station_m(speedRampMask) - initialSpeedHoldEnd_m) / ...
+    (speedRampEnd_m - initialSpeedHoldEnd_m);
+
+localSpeedLimit_mps(speedRampMask) = ...
+    initialSpeed_mps + ...
+    (requestedSpeed_mps - initialSpeed_mps) .* ...
+    smoothstep5(speedRampCoordinate);
+
+localSpeedLimit_mps(station_m >= speedRampEnd_m) = ...
+    requestedSpeed_mps;
 
 % A deliberately aggressive but sub-limit lateral-acceleration envelope.
 % Keeping this independent of requested speed is important: deriving it
@@ -48,7 +71,7 @@ localSpeedLimit_mps = ...
 maximumLateralAcceleration_mps2 = 4.0;
 
 profile = phase0_profile_parameters( ...
-    vehicle, requestedSpeed_mps, ...
+    vehicle, initialSpeed_mps, ...
     maximumLateralAcceleration_mps2);
 
 [vx_ref_mps, curvatureLimit_mps, ...
@@ -81,6 +104,7 @@ track.vx_ref_mps = vx_ref_mps;
 track.curvature_speed_limit_mps = curvatureLimit_mps;
 track.forward_pass_speed_mps = forwardSpeed_mps;
 track.initial_speed_mps = vx_ref_mps(1);
+track.requested_initial_speed_mps = initialSpeed_mps;
 track.requested_speed_mps = requestedSpeed_mps;
 track.maximum_lateral_acceleration_mps2 = ...
     maximumLateralAcceleration_mps2;

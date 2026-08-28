@@ -6,7 +6,7 @@ startup_project;
 %   "constant_delay", "random_delay", or "sampling_jitter"
 timingMode = "sampling_jitter";
 
-scenarioName = sdv.enum.ScenarioName.highway_cruise;
+scenarioName = sdv.enum.ScenarioName.aggressive_maneuver;
 environmentName = sdv.enum.EnvironmentName.dry_road;
 delay = 0;
 
@@ -32,5 +32,5 @@ prepare_phase1_runtime(scenarioName);
 
 %% BATCH RUN
 % run_constant_delay_sweep();
-% run_random_delay_sweep();
-run_sampling_jitter_monte_carlo();
+run_random_delay_sweep();
+% run_sampling_jitter_monte_carlo();

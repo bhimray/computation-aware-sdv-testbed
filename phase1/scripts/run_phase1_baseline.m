@@ -20,7 +20,7 @@ arguments
     options.RandomSeed (1,1) double = NaN
 end
 
-startup_project;
+% startup_project;
 
 % setup all the requirement for simulation to run
 runConfig = sdv.config.createRun( ...
