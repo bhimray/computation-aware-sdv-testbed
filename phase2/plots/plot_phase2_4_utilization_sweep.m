@@ -45,6 +45,11 @@ end
 function plotMetric(axisHandle, tableData, variableName, yLabel)
 
 groups = unique(tableData(:,["Scenario", "Environment"]), "rows");
+
+disp("groups");
+disp(groups);
+
+
 hold(axisHandle, "on");
 
 for groupIndex = 1:height(groups)
@@ -53,8 +58,13 @@ for groupIndex = 1:height(groups)
         & tableData.Environment == groups.Environment(groupIndex);
 
     groupData = sortrows(tableData(mask,:), "NominalUtilization");
-    label = groups.Scenario(groupIndex) + " | " ...
-        + groups.Environment(groupIndex);
+    scenarioLabel = replace( ...
+    groups.Scenario(groupIndex), "_", " ");
+
+    environmentLabel = replace( ...
+        groups.Environment(groupIndex), "_", " ");
+    
+    label = scenarioLabel + " | " + environmentLabel;
 
     plot( ...
         axisHandle, ...

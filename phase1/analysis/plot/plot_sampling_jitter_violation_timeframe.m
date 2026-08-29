@@ -10,12 +10,12 @@ function [figureHandle, diagnostic] = ...
 %
 % Example using a selected time window:
 %
-%   plot_sampling_jitter_violation_case( ...
+%   plot_sampling_jitter_violation_timeframe( ...
 %       "highway_cruise", "dry_road", 8, 17, [20 35]);
 %
 % Automatically select a window around the first violation:
 %
-%   plot_sampling_jitter_violation_case( ...
+%   plot_sampling_jitter_violation_timeframe( ...
 %       "highway_cruise", "dry_road", 8, 17, []);
 
 arguments
@@ -24,7 +24,7 @@ arguments
     jitterBound_ms (1,1) double
     seed (1,1) double
     timeWindow_s = []
-    controllerParams (1, 1) struct = {}
+    controllerParams (1,1) struct = struct()
 end
 
 %% Locate and load the saved simulation
