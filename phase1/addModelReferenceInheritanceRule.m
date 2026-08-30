@@ -1,9 +1,9 @@
 function addModelReferenceInheritanceRule( ...
-    generatedDirectory)
+    generatedDirectory, solverName)
 
 sourceFile = fullfile( ...
     generatedDirectory, ...
-    "acados_solver_sfunction_sdv_dynamic_bicycle.c");
+    solverName);
 
 sourceText = fileread(sourceFile);
 

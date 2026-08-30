@@ -51,7 +51,7 @@ track_ref_table = ...
     configuration.scenario.lookup_table;
 
 scenario_stop_table = ...
-    configuration.scenario.stop_event_table;
+    configuration.scenario.stop_event_table; % applicable only for urban profile to drop the speed at turnings
 
 stopTime_s = configuration.scenario.simulation_stop_time_s;
 % stopTime_s = 2;
@@ -67,7 +67,7 @@ roadFrictionProfile = ...
     environment.road_friction_profile;
 
 %% CPU load
-% off -> only control task, maximum -> perception & communication
+% off -> only comm and control task, maximum -> perception & communication
 % included
 loadTaskPeriod_s = 0.050;
 loadCase = "maximum";

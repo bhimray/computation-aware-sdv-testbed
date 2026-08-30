@@ -4,11 +4,11 @@ function solverFile = s_fun_generation_acados()
 bdclose("all");
 clear mex;
 
-startup_project;
-activate_acados(true);
+startup_project; % add necessary folders path
+activate_acados(true); % check acados installation
 
 configuration = ...
-    build_phase0_configuration("highway_cruise");
+    build_phase0_configuration("highway_cruise"); % all the parameters required for simulation and building ocp model
 
 [ocp, metadata] = build_acados_ocp( ...
     configuration.adaptiveModel, ...
@@ -22,7 +22,7 @@ addModelReferenceInheritanceRule( ...
 
 originalDirectory = pwd;
 directoryCleanup = ...
-    onCleanup(@() cd(originalDirectory)); %#ok<NASGU>
+    onCleanup(@() cd(originalDirectory));
 
 generatedDirectory = metadata.generated_directory;
 cd(generatedDirectory);

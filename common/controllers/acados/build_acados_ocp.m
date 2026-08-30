@@ -1,6 +1,10 @@
 function [ocp, metadata] = ...
     build_acados_ocp( ...
-        modelParameters, controller, generateSimulinkBlock)
+        modelParameters, ...
+        controller, ...
+        generateSimulinkBlock, ...
+        modelName ...
+        )
 %BUILD_ACADOS_OCP Construct the nonlinear acados OCP.
 %
 % States:
@@ -16,10 +20,20 @@ function [ocp, metadata] = ...
 
 %% Backend parameters and prediction model
 
+arguments
+    modelParameters (1,1) struct
+    controller (1,1) struct
+    generateSimulinkBlock (1,1) logical
+    modelName = 'sdv_dynamic_bicycle'
+end
+
 settings = acados_ocp_parameters(controller);
 
 [model, ~] = ...
-    build_acados_prediction_model(modelParameters);
+    build_acados_prediction_model( ...
+                    modelParameters, ...
+                    modelName ...
+                    ); % it builds the bicycle dynamic model with parameters value for constant like lf, lr, ini_vel
 
 nx = 7;
 nu = 2;
@@ -315,5 +329,6 @@ metadata.nu = nu;
 metadata.N = N;
 metadata.settings = settings;
 metadata.generated_directory = generatedDirectory;
+metadata.model_name = modelName;
 
 end

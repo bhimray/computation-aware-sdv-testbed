@@ -2,7 +2,7 @@ function simulation = simulation_parameters(scenario)
 %SIMULATION_PARAMETERS Run-specific settings and initial conditions.
 
 % Nominal controller sample period
-simulation.Ts_s = 0.01;          % 10 ms
+simulation.Ts_s = 0.01;          % 10 ms but for phase3 for varying demand analysis it need to change to 10, 20, 50 to build 3 acados s_fun
 
 % Default plant period
 simulation.plant_step_s = 0.01; 

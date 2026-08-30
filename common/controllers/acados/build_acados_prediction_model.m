@@ -1,5 +1,8 @@
 function [model, dynamicsFunction] = ...
-    build_acados_prediction_model(parameters)
+    build_acados_prediction_model( ...
+    parameters, ...
+    modelName ...
+    )
 %BUILD_ACADOS_PREDICTION_MODEL Build the acados dynamic bicycle model.
 %
 % States:
@@ -11,6 +14,11 @@ function [model, dynamicsFunction] = ...
 %
 % Online parameter:
 %   pathCurvature
+
+arguments
+    parameters (1,1) struct
+    modelName = 'sdv_dynamic_bicycle'
+end
 
 import casadi.*
 
@@ -134,7 +142,7 @@ implicitDynamics = xdot - explicitDynamics;
 
 model = AcadosModel();
 
-model.name = 'sdv_dynamic_bicycle';
+model.name = modelName;
 model.x = x;
 model.xdot = xdot;
 model.u = u;
