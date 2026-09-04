@@ -40,6 +40,12 @@ switch phaseName
     case "phase1_trigger"
         modelName = "phase1_baseline_sampling_jitter";
 
+    case "phase3_20ms"
+        modelName = "phase3_20ms";
+
+    case "phase3_50ms"
+        modelName = "phase3_50ms";
+
     otherwise
         error( ...
             "SDV:UnsupportedPhase", ...

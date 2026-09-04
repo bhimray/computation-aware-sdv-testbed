@@ -4,6 +4,7 @@ function figures = plot_phase2_4_utilization_sweep(summaryTable, options)
 arguments
     summaryTable table
     options.SaveFigure (1,1) logical = true
+    options.Name (1,1) string = "Phase 2.4 utilization sweep"
 end
 
 completed = summaryTable(summaryTable.Status == "completed",:);
@@ -11,11 +12,11 @@ completed = summaryTable(summaryTable.Status == "completed",:);
 
 figures = struct();
 figures.metrics = figure( ...
-    Name="Phase 2.4 utilization sweep", ...
+    Name= Name, ...
     Color="white");
 
 layout = tiledlayout(2,2,TileSpacing="compact",Padding="compact");
-title(layout, "Phase 2.4 Scheduler Utilization Sweep");
+title(layout, "Scheduler Utilization Sweep");
 
 plotMetric(nexttile, completed, "LateralRMS_m", ...
     "Lateral RMS error (m)");
