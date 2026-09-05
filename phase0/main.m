@@ -97,7 +97,7 @@ check_runtime_requirements(controller);
 
 environmentNames = [
     sdv.enum.EnvironmentName.dry_road
-    sdv.enum.EnvironmentName.low_friction_road
+    % sdv.enum.EnvironmentName.low_friction_road
     ];
 
 for environmentName = environmentNames.'
@@ -106,7 +106,7 @@ for environmentName = environmentNames.'
         "\nRunning environment: %s\n", ...
         environmentName);
 
-    run_urban_profile(environmentName);
-    run_highway_cruise(environmentName);
+    % run_urban_profile(environmentName);
+    % run_highway_cruise(environmentName);
     run_aggressive_maneuver(environmentName);
 end
