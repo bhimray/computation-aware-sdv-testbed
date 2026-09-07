@@ -1,6 +1,6 @@
 function [figureHandle, metrics] = ...
     plot_phase0_tracking_errors( ...
-        results, scenario, environmentName, controller, actuationDelay_s)
+        results, scenario, environmentName, controller, actuationDelay_s, phaseName)
 %PLOT_PHASE0_TRACKING_ERRORS Plot e_v, e_y, and e_psi with metrics.
 
 arguments
@@ -9,6 +9,7 @@ arguments
     environmentName
     controller
     actuationDelay_s (1,1) double = NaN
+    phaseName (1,1) string = "Phase 0"
 end
 
 time = results.time_s;
@@ -46,7 +47,7 @@ environmentName = replace(string(environmentName), "_", " ");
 
 
 figureHandle = figure( ...
-    Name="Phase 0 tracking errors: " + scenarioTitle, ...
+    Name= phaseName + " tracking errors: " + scenarioTitle, ...
     Color="w", ...
     Position=[150 40 1150 1100]);
 

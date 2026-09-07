@@ -9,13 +9,13 @@ modelName = "phase3_scheduler_testbed";
 
 scenarioNames = [
     sdv.enum.ScenarioName.urban_profile
-    sdv.enum.ScenarioName.highway_cruise
-    sdv.enum.ScenarioName.aggressive_maneuver
+    % sdv.enum.ScenarioName.highway_cruise
+    % sdv.enum.ScenarioName.aggressive_maneuver
     ];
 
 environmentNames = [
     sdv.enum.EnvironmentName.dry_road
-    sdv.enum.EnvironmentName.low_friction_road
+    % sdv.enum.EnvironmentName.low_friction_road
     ];
 
 loadCases = [
@@ -262,7 +262,7 @@ for scenarioIndex = 1:numel(scenarioNames)
 
         %% Load-case loop
 
-        for load_duration_s = 0.020:0.005:0.045
+        for load_duration_s = 0.020:0.005:0.025
 
             loadCase = loadCases(loadIndex);
 

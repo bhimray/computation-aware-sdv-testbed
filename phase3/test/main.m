@@ -8,14 +8,14 @@ projectRoot = string( ...
 modelName = "phase3_scheduler_testbed";
 
 scenarioNames = [
-    % sdv.enum.ScenarioName.urban_profile
+    sdv.enum.ScenarioName.urban_profile
     % sdv.enum.ScenarioName.highway_cruise
-    sdv.enum.ScenarioName.aggressive_maneuver
+    % sdv.enum.ScenarioName.aggressive_maneuver
     ];
 
 environmentNames = [
     sdv.enum.EnvironmentName.dry_road
-    sdv.enum.EnvironmentName.low_friction_road
+    % sdv.enum.EnvironmentName.low_friction_road
     ];
 
 loadCases = [
@@ -25,7 +25,7 @@ loadCases = [
 
 loadIndex = 2;
 
-baseRandomSeed = 1001;
+baseRandomSeed = 1111;
 loadTaskPeriod_s = 0.050;
 
 resultsRoot = fullfile( ...
@@ -127,7 +127,7 @@ for scenarioIndex = 1:numel(scenarioNames)
         (0:supervisorSampleTime_s:stopTime_s).';
 
     demandMode = repmat( ...
-        uint8(3), ...       % HIGH = fixed 10 ms controller
+        uint8(3), ...       % 3.HIGH = fixed 10 ms controller, 1.LOW = fixed 50ms
         numel(tagTime_s), ...
         1);
 
@@ -222,7 +222,7 @@ for scenarioIndex = 1:numel(scenarioNames)
 
         %% Load-case loop
 
-        for load_duration_s = 0.030
+        for load_duration_s = 0.020
 
             loadCase = loadCases(loadIndex);
 

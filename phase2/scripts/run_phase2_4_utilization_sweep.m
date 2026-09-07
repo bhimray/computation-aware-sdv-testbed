@@ -1,6 +1,6 @@
 function [summaryTable, figures] = ...
     run_phase2_4_utilization_sweep(options)
-%RUN_PHASE2_4_UTILIZATION_SWEEP Sweep load-task execution time.
+%RUN_PHASE2_4_UTILIZATION_SWEEP Sweep load-task response time.
 %
 % table contains tracking, ControlTask, and LoadTask metrics
 
@@ -30,7 +30,7 @@ summaryTable = emptySummaryTable();
 if options.Resume && isfile(summaryFile)
     savedData = load(summaryFile, "summaryTable");
     if isfield(savedData, "summaryTable")
-        summaryTable = savedData.summaryTable;
+        summaryTable = ensureSummarySchema(savedData.summaryTable);
     end
 end
 
@@ -129,6 +129,10 @@ record.Scenario = "";
 record.Environment = "";
 record.LoadExecution_ms = NaN;
 record.NominalUtilization = NaN;
+record.ObservedControlCpuUtilization_pct = NaN;
+record.ObservedLoadCpuUtilization_pct = NaN;
+record.ObservedCommunicationCpuUtilization_pct = NaN;
+record.ObservedTotalCpuUtilization_pct = NaN;
 record.SpeedRMS_mps = NaN;
 record.LateralRMS_m = NaN;
 record.HeadingRMS_deg = NaN;
@@ -155,6 +159,29 @@ record.RunFile = "";
 end
 
 
+function tableData = ensureSummarySchema(tableData)
+
+schema = emptySummaryTable();
+variableNames = string(schema.Properties.VariableNames);
+
+observedNames = [
+    "ObservedControlCpuUtilization_pct"
+    "ObservedLoadCpuUtilization_pct"
+    "ObservedCommunicationCpuUtilization_pct"
+    "ObservedTotalCpuUtilization_pct"
+    ];
+
+for variableName = observedNames.'
+    if ~ismember(variableName, string(tableData.Properties.VariableNames))
+        tableData.(variableName) = nan(height(tableData), 1);
+    end
+end
+
+tableData = tableData(:, variableNames);
+
+end
+
+
 function tf = isCompleted(tableData, scenario, environment, load_ms)
 
 if isempty(tableData)
@@ -166,7 +193,8 @@ tf = any( ...
     tableData.Scenario == scenario ...
     & tableData.Environment == environment ...
     & abs(tableData.LoadExecution_ms - load_ms) < 1e-9 ...
-    & tableData.Status == "completed");
+    & tableData.Status == "completed" ...
+    & isfinite(tableData.ObservedTotalCpuUtilization_pct));
 
 end
 
