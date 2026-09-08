@@ -1,4 +1,11 @@
 function [summaryTable, sweepFigure] = run_constant_delay_sweep(options)
+%RUN_CONSTANT_DELAY_SWEEP Run one or more constant-delay experiments.
+%
+% UpdateSummary=false returns rows for the requested runs without reading,
+% writing, or plotting the stored sweep summary. UpdateSummary=true loads
+% the stored summary, replaces only matching scenario/environment/delay
+% rows, checkpoints it after each run, and regenerates the summary plot.
+
 arguments
     options.ScenarioNames (1,:) string ...
         = [sdv.enum.ScenarioName.urban_profile, ...
@@ -8,9 +15,11 @@ arguments
         = [sdv.enum.EnvironmentName.dry_road, ...
         sdv.enum.EnvironmentName.low_friction_road]
     options.Delay_ms (1,:) double {mustBeNonnegative} = 0:5:100
+    options.UpdateSummary (1,1) logical = true
+    options.SaveRunResults (1,1) logical = true
+    options.SaveRunFigures (1,1) logical = true
+    options.ShowRunFigures (1,1) logical = false
 end
-
-startup_project;
 
 configuration = build_phase0_configuration( ...
     options.ScenarioNames(1));
@@ -18,7 +27,11 @@ configuration = build_phase0_configuration( ...
 controllerName = sdv.config.controllerName( ...
     configuration.controller);
 
-summaryTable = table();
+if options.UpdateSummary
+    summaryTable = loadStoredSummary(controllerName);
+else
+    summaryTable = table();
+end
 
 for delay_ms = options.Delay_ms
 
@@ -38,9 +51,9 @@ for delay_ms = options.Delay_ms
                     scenarioName, ...
                     environmentName, ...
                     delay_s, ...
-                    SaveResults=true, ...
-                    SaveFigures=true, ... % to save figures
-                    ShowFigures=false);    % to show figures looping simulation
+                    SaveResults=options.SaveRunResults, ...
+                    SaveFigures=options.SaveRunFigures, ...
+                    ShowFigures=options.ShowRunFigures);
 
                 newRow = sdv.metrics.createDelaySweepRow( ...
                     scenarioName, ...
@@ -68,27 +81,30 @@ for delay_ms = options.Delay_ms
                     ErrorMessage=string( ...
                     simulationError.message));
             end
-            % after creating row save it in table
-            if isempty(summaryTable)
-                summaryTable = newRow;
-            else
-                summaryTable = [summaryTable; newRow];
-            end
+            summaryTable = upsertRow(summaryTable, newRow);
 
             summaryTable = sortrows( ...
                 summaryTable, ...
                 ["scenario_name", "environment_name", "delay_ms"]);
 
-            % Checkpoint after every simulation.
-            sdv.io.saveDelaySweepSummary( ...
-                summaryTable, ...
-                controllerName ...
-                );
+            if options.UpdateSummary
+                % Checkpoint after every simulation without changing
+                % unrelated rows already stored in the summary.
+                sdv.io.saveDelaySweepSummary( ...
+                    summaryTable, ...
+                    controllerName);
+            end
         end
     end
 end
 
-%% after all delay and scenario simulation finish for one environment (i.e. friction)
+sweepFigure = gobjects(0);
+
+if ~options.UpdateSummary
+    return;
+end
+
+%% Plot the complete updated summary.
 sweepFigure = plotDelaySweepMetrics(summaryTable);
 
 projectRoot = string( ...
@@ -106,6 +122,53 @@ sdv.io.exportFigure( ...
     sweepFigure, ...
     figureFolder, ...
     "constant_delay_metrics");
+
+end
+
+function summaryTable = loadStoredSummary(controllerName)
+% Load the existing summary when row-level updates are enabled.
+
+projectRoot = string( ...
+    matlab.project.currentProject().RootFolder);
+
+summaryFile = fullfile( ...
+    projectRoot, ...
+    "phase1", ...
+    "results", ...
+    controllerName, ...
+    "constant_delay_sweep", ...
+    "constant_delay_summary.mat");
+
+summaryTable = table();
+
+if ~isfile(summaryFile)
+    return;
+end
+
+stored = load(summaryFile, "summaryTable");
+
+assert(isfield(stored, "summaryTable") && istable(stored.summaryTable), ...
+    "Stored constant-delay summary does not contain a valid summaryTable.");
+
+summaryTable = stored.summaryTable;
+
+end
+
+function summaryTable = upsertRow(summaryTable, newRow)
+% Replace one matching case or append it when it is not yet stored.
+
+if isempty(summaryTable)
+    summaryTable = newRow;
+    return;
+end
+
+matchingRow = ...
+    string(summaryTable.scenario_name) == string(newRow.scenario_name(1)) & ...
+    string(summaryTable.environment_name) == string(newRow.environment_name(1)) & ...
+    summaryTable.delay_ms == newRow.delay_ms(1);
+
+summaryTable(matchingRow, :) = [];
+summaryTable = [summaryTable; newRow];
 
 end
 
