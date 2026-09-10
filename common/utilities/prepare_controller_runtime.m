@@ -1,21 +1,22 @@
-startup_project;
+function [configuration, controller] = ...
+    prepare_controller_runtime(scenarioName)
+%PREPARE_CONTROLLER_RUNTIME Check and prepare the selected MPC backend.
 
-configuration = ...
-    build_phase0_configuration("highway_cruise");
+arguments
+    scenarioName (1,1) string = "highway_cruise"
+end
 
+configuration = build_phase0_configuration(scenarioName);
 controller = configuration.controller;
 
 % Check MATLAB products before attempting dependency installation.
-check_runtime_requirements( ...
-    controller, ...
-    false);
+check_runtime_requirements(controller, false);
 
 if controller.controller_backend == controller.BACKEND_ACADOS
 
     [acadosAvailable, ~] = activate_acados(false);
 
     projectRoot = string(getenv("PROJECT_ROOT"));
-
     if strlength(projectRoot) == 0
         projectRoot = string( ...
             matlab.project.currentProject().RootFolder);
@@ -63,7 +64,7 @@ if controller.controller_backend == controller.BACKEND_ACADOS
 
         continueSetup = any(strcmpi( ...
             strtrim(response), ...
-            ["y","yes"]));
+            ["y", "yes"]));
 
         if ~continueSetup
             error( ...
@@ -76,63 +77,15 @@ if controller.controller_backend == controller.BACKEND_ACADOS
         end
 
         if ~solverAvailable
-            solverFile = s_fun_generation_acados();
+            s_fun_generation_acados();
         end
 
         startup_project;
+        configuration = build_phase0_configuration(scenarioName);
+        controller = configuration.controller;
     end
 end
 
 check_runtime_requirements(controller);
-
-%% execute simulation for 3 different scenario with 3 different road condition, total 9 simulation
-%% Run three scenarios under three environment conditions
-
-scenarioNames = ["highway_cruise", "aggressive_maneuver", "urban_profile"];
-modelNames = ["phase3_20ms", "phase3_50ms"];
-environmentNames = [
-    sdv.enum.EnvironmentName.dry_road
-    sdv.enum.EnvironmentName.low_friction_road
-    ];
-
-for scenario = scenarioNames
-
-    configuration = ...
-        build_phase0_configuration(scenario);
-
-    controller = configuration.controller;
-    for environmentName = environmentNames.'
-
-        fprintf( ...
-            "\nRunning environment: %s\n", ...
-            environmentName);
-
-        for modelName = modelNames
-            run_scenario(environmentName, scenario, modelName);
-        end
-    end
-end
-
-
-function [results, config] = ...
-    run_scenario(environmentName, scenario, modelName)
-
-arguments
-    environmentName (1,1) string = "dry_road"
-    scenario (1,1) string = "highway_cruise"
-    modelName (1,1) string = "phase3_20ms"
-end
-
-[results, config] = run_phase3_baseline( ...
-    scenario, ...
-    environmentName, ...
-    modelName ...
-    );
-
-if config.controller.controller_backend == ...
-        config.controller.BACKEND_ACADOS
-
-    disp(results.solve_time_metrics.summary_table);
-end
 
 end
