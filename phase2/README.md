@@ -19,7 +19,7 @@ Run the Phase 2.4 processor-utilization sweep with:
 run("phase2/main_phase2_4.m");
 ```
 
-Edit its scenario, environment, load-duration, random-seed, and resume options before starting a long sweep. Phase 2 currently has no separate `runFile` folder; its reusable runners are in `phase2/scripts`.
+Edit its scenario, environment, load-duration, random-seed, and resume options before starting a long sweep. its reusable runners are in `phase2/scripts`.
 
 ## Models
 
