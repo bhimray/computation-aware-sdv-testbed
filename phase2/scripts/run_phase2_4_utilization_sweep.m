@@ -1,4 +1,4 @@
-function [summaryTable, figures] = ...
+function summaryTable = ...
     run_phase2_4_utilization_sweep(options)
 %RUN_PHASE2_4_UTILIZATION_SWEEP Sweep load-task response time.
 %
@@ -12,7 +12,6 @@ arguments
     options.LoadExecutionTime_ms (1,:) double {mustBeNonnegative} = 0:5:40
     options.RandomSeed (1,1) double = 1001
     options.Resume (1,1) logical = true
-    options.ShowFigure (1,1) logical = true
 end
 
 startup_project;
@@ -103,12 +102,11 @@ for scenarioName = options.ScenarioNames
     end
 end
 
-if options.ShowFigure
-    figures = plot_phase2_4_utilization_sweep(summaryTable);
-    figures.LoadTask = plot_phase2_4_load_task_sweep(summaryTable);
-else
-    figures = struct();
-end
+fprintf("Relevant plot files:\n%s\n%s\n", ...
+    fullfile(projectRoot, "phase2", "plots", ...
+        "plot_phase2_4_utilization_sweep.m"), ...
+    fullfile(projectRoot, "phase2", "plots", ...
+        "plot_phase2_4_load_task_sweep.m"));
 
 end
 

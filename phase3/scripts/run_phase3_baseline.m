@@ -1,4 +1,4 @@
-function [results, config] = run_phase3_baseline( ...
+function [results, config, resultsFile] = run_phase3_baseline( ...
     scenarioName, environmentName, modelName)
 %RUN_PHASE0_BASELINE Run one Phase 0 experiment through the shared runner.
 
@@ -14,6 +14,14 @@ runConfig = sdv.config.createRun( ...
     modelName, scenarioName, environmentName);
 
 runner = sdv.ExperimentRunner(runConfig);
-[results, config] = runner.run();
+[results, config, resultsFile] = runner.run();
+
+fprintf("Relevant plot file:\n%s\n", fullfile( ...
+    matlab.project.currentProject().RootFolder, ...
+    "phase3", "plot", "plot_phase3_baseline.m"));
+
+if strlength(resultsFile) > 0
+    fprintf("Plot input artifact:\n%s\n", resultsFile);
+end
 
 end

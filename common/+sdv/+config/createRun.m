@@ -19,8 +19,6 @@ arguments
     options.RandomDelayProfile = []
     options.RandomSeed (1,1) double = NaN
     options.SaveResults (1,1) logical = true
-    options.SaveFigures (1,1) logical = true
-    options.ShowFigures (1,1) logical = true
 end
 
 phaseName = lower(strtrim(phaseName));
@@ -66,7 +64,5 @@ runConfig.random_seed = options.RandomSeed;
 
 runConfig.output = struct();
 runConfig.output.save_results = options.SaveResults;
-runConfig.output.save_figures = options.SaveFigures;
-runConfig.output.show_figures = options.ShowFigures;
 
 end

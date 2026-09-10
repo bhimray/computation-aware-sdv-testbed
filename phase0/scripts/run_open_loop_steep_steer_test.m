@@ -1,4 +1,6 @@
 %% Open-loop constant-drive-torque sanity test
+startup_project;
+
 modelName = "plant_open_loop_step_steer_test";
 
 % Test configuration
@@ -56,81 +58,19 @@ for k = 1:numel(torqueLevels_Nm)
     results(k).yaw_angle_rad = yawSignal.Data;
 end
 
+projectRoot = string(matlab.project.currentProject().RootFolder);
+resultsFolder = fullfile( ...
+    projectRoot, "phase0", "results", "open_loop");
 
-linestyles = {'-','--',':','-.', '--*'};
-
-%% velocity
-figure;
-hold on;
-labels = strings(1, numel(results));
-for k = 1:numel(results)
-    plot(...
-        results(k).time_s, ...
-        results(k).vx_mps, ...
-        linestyles{k} ...
-        );
-    labels(k) = sprintf("%d N.m", results(k).torque_Nm);
+if ~isfolder(resultsFolder)
+    mkdir(resultsFolder);
 end
 
-grid on;
-xlabel("Time (s)");
-ylabel("Longitudinal speed, V_x (m/s)");
-title("Open-loop response to constant drive torque (velocity)");
-legend(labels, Location = "best");
+resultsFile = fullfile(resultsFolder, "open_loop_steep_steer_test.mat");
+save(resultsFile, "results", "torqueLevels_Nm", ...
+    "testStopTime_s", "test_step_time_s");
 
-%% yaw rate
-figure;
-hold on;
-labels = strings(1, numel(results));
-for k = 1:numel(results)
-    plot(...
-        results(k).time_s, ...
-        results(k).yaw_rate_radps, ...
-        linestyles{k} ...
-        );
-    labels(k) = sprintf("%d N.m", results(k).torque_Nm);
-end
-
-grid on;
-xlabel("Time (s)");
-ylabel("Yaw rate (rad/s)");
-title("Open-loop response of yaw rate to constant velocity");
-legend(labels, Location = "best");
-
-%% yaw angle
-figure;
-hold on;
-labels = strings(1, numel(results));
-for k = 1:numel(results)
-    plot(...
-        results(k).time_s, ...
-        results(k).yaw_angle_rad, ...
-        linestyles{k} ...
-        );
-    labels(k) = sprintf("%d N.m", results(k).torque_Nm);
-end
-
-grid on;
-xlabel("Time (s)");
-ylabel("Yaw angle (rad)");
-title("Open-loop response of yaw angle at const velocity");
-legend(labels, Location = "best");
-
-%% acceleration
-% figure;
-% hold on;
-% labels = strings(1, numel(results));
-% for k = 1:numel(results)
-%     plot( ...
-%         results(k).time_s, ...
-%         results(k).ax_mps2, ...
-%         linestyles{k} ...
-%     );
-%     labels(k) = sprintf("%d N.m", results(k).torque_Nm);
-% end
-% 
-% grid on;
-% xlabel("Time (s)");
-% ylabel("Acceleration, a_x (m/s2)");
-% title("Open-loop response to constant drive torque (acceleration)");
-% legend(labels, Location = "best");
+fprintf("Open-loop steer results saved to:\n%s\n", resultsFile);
+fprintf("Relevant plot file:\n%s\n", fullfile( ...
+    projectRoot, "phase0", "plots", ...
+    "plot_open_loop_steep_steer_test.m"));

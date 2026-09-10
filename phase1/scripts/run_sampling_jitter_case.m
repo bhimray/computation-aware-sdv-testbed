@@ -24,8 +24,6 @@ arguments
         {mustBePositive} = 0.0005
 
     options.SaveResults (1,1) logical = true
-    options.SaveFigures (1,1) logical = true
-    options.ShowFigures (1,1) logical = true
 end
 
 startup_project;
@@ -56,9 +54,7 @@ for scenarioName = scenarioNames
             scenarioName, ...
             environmentName, ...
             ActuationDelay_s=0, ...
-            SaveResults=options.SaveResults, ...
-            SaveFigures=options.SaveFigures, ...
-            ShowFigures=options.ShowFigures);
+            SaveResults=options.SaveResults);
 
         runConfig.jitter = struct( ...
             "bound_ms", jitterBound_ms, ...
@@ -66,7 +62,7 @@ for scenarioName = scenarioNames
             "simulation_step_s", simulationStep_s);
 
         runner = sdv.ExperimentRunner(runConfig);
-        [results, config] = runner.run();
+        [results, config, resultsFile] = runner.run();
 
         jitterEventTable = results.jitter_event_table;
 
@@ -96,6 +92,13 @@ for scenarioName = scenarioNames
         fprintf( ...
             "Phase 1.3 single case complete: %s, %s, J = %.3f ms, seed = %d.\n", ...
             scenarioName, environmentName, jitterBound_ms, randomSeed);
+        fprintf("Relevant plot file:\n%s\n", fullfile( ...
+            matlab.project.currentProject().RootFolder, ...
+            "phase1", "plots", "plot_phase1_baseline.m"));
+
+        if strlength(resultsFile) > 0
+            fprintf("Plot input artifact:\n%s\n", resultsFile);
+        end
 
     end
 end

@@ -49,6 +49,18 @@ phase*/figures/*
 phase*/logs/*
 !phase*/logs/.gitkeep
 
+# Scheduler profiler and test outputs
+*_profiling/
+phase3/test/results/
+
+# Local analysis datasets
+analysis/phase1/random_delay_all_scenarios.mat
+analysis/phase1/jitter/sweep_summary.mat
+analysis/phase1/jitter/sweep_summary.csv
+
+# Local literature added during investigation
+reading_materials/*.pdf
+
 # Local generated build output
 build/
 phase*/build/

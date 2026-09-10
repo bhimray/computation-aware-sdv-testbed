@@ -1,11 +1,13 @@
 function folders = createOutputFolders( ...
-    projectRoot, runConfig, controllerName)
+    projectRoot, runConfig, controllerName, options)
 %CREATEOUTPUTFOLDERS Create deterministic result and figure directories.
 
 arguments
     projectRoot (1,1) string
     runConfig (1,1) struct
     controllerName (1,1) string
+    options.CreateResults (1,1) logical = true
+    options.CreateFigures (1,1) logical = true
 end
 
 phaseFolderName = runConfig.phase_name;
@@ -18,7 +20,7 @@ pathParts = [phaseFolderName; controllerName];
 
 if runConfig.phase_name == "phase1"
     if runConfig.delay_mode == 2
-        maximumDelay_ms = ceil(max( ...
+        maximumDelay_ms = ceil(1e3*max( ...
             runConfig.random_delay_profile.Data, [], "all"));
         delayText = replace( ...
             string(sprintf("%g", maximumDelay_ms)), ".", "p");
@@ -56,11 +58,11 @@ folders.results = fullfile( ...
 folders.figures = fullfile( ...
     projectRoot, phaseFolderName, "figures", tailParts{:});
 
-if ~isfolder(folders.results)
+if options.CreateResults && ~isfolder(folders.results)
     mkdir(folders.results);
 end
 
-if ~isfolder(folders.figures)
+if options.CreateFigures && ~isfolder(folders.figures)
     mkdir(folders.figures);
 end
 

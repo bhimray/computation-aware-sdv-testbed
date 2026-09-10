@@ -4,8 +4,6 @@ function name = controllerName(controllerParams)
 switch controllerParams.controller_backend
     case controllerParams.BACKEND_ACADOS
         name = "ACADOS_MPC";
-    case controllerParams.BACKEND_MATLAB
-        name = "MATLAB_MPC";
     case controllerParams.BACKEND_ADAPTIVE
         name = "ADAPTIVE_MPC";
     otherwise

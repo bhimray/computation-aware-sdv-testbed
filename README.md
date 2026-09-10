@@ -10,8 +10,6 @@ Phase 0 currently supports two controller backends:
 - acados nonlinear MPC
 - MATLAB Adaptive MPC
 
-The fixed linear MATLAB MPC backend is reserved but is not yet implemented.
-
 ## Requirements
 
 The project was developed with MATLAB R2026a on Windows. The following MATLAB
@@ -68,8 +66,7 @@ The backend identifiers are:
 
 ```text
 BACKEND_ACADOS  = 1
-BACKEND_MATLAB  = 2   (not implemented)
-BACKEND_ADAPTIVE = 3
+BACKEND_ADAPTIVE = 2
 ```
 
 ## Run all Phase 0 scenarios

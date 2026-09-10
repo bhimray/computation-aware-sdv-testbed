@@ -9,15 +9,43 @@ function [figureHandle] = ...
         outputFile)
 %PLOT_PHASE2_TOOL_SPIKE Plot Phase 2.1 scheduler tool-spike results.
 
-if nargin < 5 || isempty(controlPeriod_s)
+loadedFromFile = ...
+    nargin == 1 && (isstring(positionSignal) || ischar(positionSignal));
+
+if loadedFromFile
+    resultsFile = string(positionSignal);
+    assert(isfile(resultsFile), ...
+        "Phase 2.1 result file does not exist: %s", resultsFile);
+
+    stored = load(resultsFile, "results", "timingTable");
+    assert(isfield(stored, "results") && ...
+        isfield(stored, "timingTable"), ...
+        "Result file must contain results and timingTable.");
+
+    positionSignal = stored.results.position;
+    velocitySignal = stored.results.velocity;
+    controlSignal = stored.results.control_output;
+    timingTable = stored.timingTable;
+    controlPeriod_s = stored.results.control_period_s;
+    nominalExecutionTime_s = ...
+        stored.results.nominal_execution_time_s;
+
+    projectRoot = string(matlab.project.currentProject().RootFolder);
+    outputFile = fullfile( ...
+        projectRoot, "phase2", "figures", ...
+        "phase2_1_scheduler_tool_spike.png");
+end
+
+if ~loadedFromFile && (nargin < 5 || isempty(controlPeriod_s))
     controlPeriod_s = 0.01;
 end
 
-if nargin < 6 || isempty(nominalExecutionTime_s)
+if ~loadedFromFile && ...
+        (nargin < 6 || isempty(nominalExecutionTime_s))
     nominalExecutionTime_s = 0.003;
 end
 
-if nargin < 7
+if ~loadedFromFile && nargin < 7
     outputFile = "";
 end
 
