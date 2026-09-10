@@ -2,15 +2,11 @@
 
 startup_project;
 
-% Select one mode:
-%   "constant_delay", "random_delay", or "sampling_jitter"
-timingMode = "sampling_jitter";
-
 scenarioName = sdv.enum.ScenarioName.aggressive_maneuver;
 environmentName = sdv.enum.EnvironmentName.low_friction_road;
 delay = 0;
 
-prepare_phase1_runtime(scenarioName);
+prepare_controller_runtime(scenarioName);
 
 runRows = run_constant_delay_sweep( ...
     ScenarioNames = scenarioName, ...

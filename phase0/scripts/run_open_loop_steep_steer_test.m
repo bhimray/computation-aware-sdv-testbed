@@ -1,4 +1,6 @@
-%% Open-loop constant-drive-torque sanity test
+function [results, resultsFile] = run_open_loop_steep_steer_test()
+%RUN_OPEN_LOOP_STEEP_STEER_TEST Run and save the step-steer sanity test.
+
 startup_project;
 
 modelName = "plant_open_loop_step_steer_test";
@@ -74,3 +76,5 @@ fprintf("Open-loop steer results saved to:\n%s\n", resultsFile);
 fprintf("Relevant plot file:\n%s\n", fullfile( ...
     projectRoot, "phase0", "plots", ...
     "plot_open_loop_steep_steer_test.m"));
+
+end

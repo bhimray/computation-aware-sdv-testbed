@@ -1,4 +1,6 @@
-%% Open-loop constant-drive-torque sanity test
+function [results, resultsFile] = run_open_loop_drive_test()
+%RUN_OPEN_LOOP_DRIVE_TEST Run and save the open-loop drive sanity test.
+
 startup_project;
 
 modelName = "plant_open_loop_test";
@@ -69,3 +71,5 @@ fprintf("Open-loop drive results saved to:\n%s\n", resultsFile);
 fprintf("Relevant plot file:\n%s\n", fullfile( ...
     projectRoot, "phase0", "plots", ...
     "plot_open_loop_drive_test.m"));
+
+end
