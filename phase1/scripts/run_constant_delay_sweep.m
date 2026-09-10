@@ -105,7 +105,9 @@ if ~options.UpdateSummary
 end
 
 %% Plot the complete updated summary.
-sweepFigure = plotDelaySweepMetrics(summaryTable);
+sweepFigure = sdv.plot.delaySweepMetrics( ...
+    summaryTable, ...
+    FigureTitle="Phase 1.1: Performance versus Constant Delay");
 
 projectRoot = string( ...
     matlab.project.currentProject().RootFolder);
@@ -169,115 +171,5 @@ matchingRow = ...
 
 summaryTable(matchingRow, :) = [];
 summaryTable = [summaryTable; newRow];
-
-end
-
-function figureHandle = plotDelaySweepMetrics(summaryTable)
-% Plot constant-delay metrics after the complete sweep finishes.
-
-completedTable = summaryTable( ...
-    summaryTable.simulation_completed, :);
-
-assert(~isempty(completedTable), ...
-    "No completed simulations are available for plotting.");
-
-% Optional: use degrees in the report figure.
-completedTable.heading_rmse_deg = ...
-    rad2deg(completedTable.heading_rmse_rad);
-
-figureHandle = figure( ...
-    Name="Phase 1.1 constant-delay sweep", ...
-    Color="white");
-
-layout = tiledlayout( ...
-    figureHandle, ...
-    3, ...
-    1, ...
-    TileSpacing="compact", ...
-    Padding="compact");
-
-nexttile(layout);
-plotMetric(completedTable, "lateral_rmse_m");
-ylabel("Lateral RMSE (m)");
-title("Lateral Tracking Error");
-grid on;
-
-nexttile(layout);
-plotMetric(completedTable, "heading_rmse_deg");
-ylabel("Heading RMSE (deg)");
-title("Heading Tracking Error");
-grid on;
-
-nexttile(layout);
-plotMetric(completedTable, ...
-    "constraint_violation_samples");
-ylabel("Number of violating samples");
-title("Total Constraint-Violating Samples");
-grid on;
-
-xlabel(layout, ...
-    "Constant actuation delay, \tau (ms)");
-
-title(layout, ...
-    "Phase 1.1: Performance versus Constant Delay");
-
-end
-function plotMetric(summaryTable, variableName)
-% Plot one sweep metric for every scenario/environment combination.
-
-hold on;
-
-scenarioNames = unique( ...
-    summaryTable.scenario_name, ...
-    "stable");
-
-environmentNames = unique( ...
-    summaryTable.environment_name, ...
-    "stable");
-
-colors = lines(numel(scenarioNames));
-styles = enumeration("sdv.enum.plotStyle");
-
-for scenarioIndex = 1:numel(scenarioNames)
-
-    scenarioName = scenarioNames(scenarioIndex);
-
-    for environmentIndex = 1:numel(environmentNames)
-
-        environmentName = ...
-            environmentNames(environmentIndex);
-
-        selectedRows = ...
-            summaryTable.scenario_name == scenarioName & ...
-            summaryTable.environment_name == environmentName;
-
-        if ~any(selectedRows)
-            continue;
-        end
-
-        selectedTable = sortrows( ...
-            summaryTable(selectedRows, :), ...
-            "delay_ms");
-
-        styleIndex = mod( ...
-            environmentIndex - 1, ...
-            numel(styles)) + 1;
-
-        plot( ...
-            selectedTable.delay_ms, ...
-            selectedTable.(variableName), ...
-            styles(styleIndex).LineSpec, ...
-            Color=colors(scenarioIndex, :), ...
-            LineWidth=1.4, ...
-            MarkerSize=5, ...
-            DisplayName=replace( ...
-            scenarioName + " / " + environmentName, ...
-            "_", " "));
-    end
-end
-
-hold off;
-grid on;
-legend(Location="best");
 
 end

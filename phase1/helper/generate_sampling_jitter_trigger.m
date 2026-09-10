@@ -33,11 +33,18 @@ randomStream = RandStream( ...
 requestedEventTimes_s = 0;
 currentEventTime_s = 0;
 
+%% test
+% startupIntervals = 3;
+% intervalIndex = 0;
+
 while true
 
     jitter_s = jitterBound_s * ...
         (2*rand(randomStream) - 1);
-
+    % intervalIndex = intervalIndex + 1;
+     % if intervalIndex <= startupIntervals
+     %        jitter_s = 0;
+     %    end
     requestedInterval_s = ...
         nominalSampleTime_s + jitter_s;
 

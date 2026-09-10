@@ -18,8 +18,8 @@ pathParts = [phaseFolderName; controllerName];
 
 if runConfig.phase_name == "phase1"
     if runConfig.delay_mode == 2
-        maximumDelay_ms = 1e3 * max( ...
-            runConfig.random_delay_profile.Data, [], "all");
+        maximumDelay_ms = ceil(max( ...
+            runConfig.random_delay_profile.Data, [], "all"));
         delayText = replace( ...
             string(sprintf("%g", maximumDelay_ms)), ".", "p");
         pathParts(end + 1) = "random_delay";
