@@ -1,6 +1,8 @@
 function [results, config, resultsFile] = run_phase3_baseline( ...
     scenarioName, environmentName, modelName)
-%RUN_PHASE0_BASELINE Run one Phase 0 experiment through the shared runner.
+%RUN_PHASE0_BASELINE Run one Phase 0 experiment through the shared runner
+%for example, if you want to run simulation for 20ms controller period or
+%50ms controller period
 
 arguments
     scenarioName (1,1) string

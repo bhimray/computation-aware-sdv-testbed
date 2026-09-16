@@ -178,7 +178,7 @@ end
 hold(axisHandle, "off");
 
 grid(axisHandle, "on");
-xlabel(axisHandle, "LoadTask execution time (ms)");
+xlabel(axisHandle, "Perception/Load Task execution time (ms)");
 ylabel(axisHandle, yLabel);
 legend(axisHandle, Location="best");
 

@@ -24,7 +24,7 @@ loadCases = [
     ];
 loadIndex = 2;
 
-baseRandomSeed = 1111;
+baseRandomSeed = 1001;
 loadTaskPeriod_s = 0.050;
 
 resultsRoot = fullfile( ...
