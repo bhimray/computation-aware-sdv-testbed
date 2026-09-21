@@ -5,6 +5,10 @@ function controlTaskDuration = ...
         stopTime_s, ...
         randomSeed, ...
         options)
+% it takes the sample time and choose which sample time timeseries solve
+% time data is requried based on that it will choose that and shuffle the
+% solve time using random integer and gives the control task duration as
+% output
 
 arguments
     demandModeSignal (1,1) timeseries
