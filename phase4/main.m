@@ -6,7 +6,7 @@ clc;
 startup_project;
 
 % Change only these values for one experiment.
-scenarioName = "aggressive_maneuver";
+scenarioName = "urban_profile";
 environmentName = "dry_road";
 loadTaskDuration_s = 0.020;
 randomSeed = 4001;

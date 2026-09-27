@@ -8,14 +8,14 @@ projectRoot = string( ...
 modelName = "phase3_scheduler_testbed";
 
 scenarioNames = [
-    sdv.enum.ScenarioName.urban_profile
+    % sdv.enum.ScenarioName.urban_profile
     % sdv.enum.ScenarioName.highway_cruise
-    % sdv.enum.ScenarioName.aggressive_maneuver
+    sdv.enum.ScenarioName.aggressive_maneuver
     ];
 
 environmentNames = [
-    sdv.enum.EnvironmentName.dry_road
-    % sdv.enum.EnvironmentName.low_friction_road
+    % sdv.enum.EnvironmentName.dry_road
+    sdv.enum.EnvironmentName.low_friction_road
     ];
 
 loadCases = [

@@ -7,7 +7,7 @@ projectRoot = string( ...
     matlab.project.currentProject().RootFolder);
 
 scenarioName = "aggressive_maneuver";
-environmentName = "dry_road";
+environmentName = "low_friction_road";
 load_duration_s = 0.020;
 
 fixedFile = fullfile( ...
