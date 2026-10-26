@@ -31,6 +31,10 @@ end
 
 % Enable the standardized backend outputs.
 options.outputs.u0 = 1; % true
+% x1 contains the state after one ERK prediction interval. Its final two
+% elements are the physical torque and steering commands obtained by
+% integrating the optimized rate inputs.
+options.outputs.x1 = 1;
 options.outputs.solver_status = 1;
 options.outputs.CPU_time = 1;
 options.outputs.CPU_time_sim = 1;
@@ -48,6 +52,7 @@ options.generate_simulink_block = 1;
 options.show_port_info = 1;
 
 % Controller and plant use the same sampling interval.
-options.samplingtime = 't0'; %% 't0'
+% options.samplingtime = 't0'; %% 't0' is the fixed sampling interval like 10ms
+options.samplingtime = '-1'; %% '-1' is inherited for triggered system, phase 1.3
 
 end

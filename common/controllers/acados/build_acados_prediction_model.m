@@ -1,22 +1,31 @@
 function [model, dynamicsFunction] = ...
-    build_acados_prediction_model(parameters)
+    build_acados_prediction_model( ...
+    parameters, ...
+    modelName ...
+    )
 %BUILD_ACADOS_PREDICTION_MODEL Build the acados dynamic bicycle model.
 %
 % States:
-%   x = [vx; vy; yawRate; lateralError; headingError]
+%   x = [vx; vy; yawRate; lateralError; headingError; ...
+%        frontAxleTorque; roadWheelAngle]
 %
 % Inputs:
-%   u = [frontAxleTorque; roadWheelAngle]
+%   u = [frontAxleTorqueRate; roadWheelAngleRate]
 %
 % Online parameter:
 %   pathCurvature
+
+arguments
+    parameters (1,1) struct
+    modelName = 'sdv_dynamic_bicycle'
+end
 
 import casadi.*
 
 %% Symbolic variables
 
-x = SX.sym('x', 5, 1);
-xdot = SX.sym('xdot', 5, 1);
+x = SX.sym('x', 7, 1);
+xdot = SX.sym('xdot', 7, 1);
 u = SX.sym('u', 2, 1);
 
 pathCurvature = ...
@@ -28,8 +37,11 @@ yawRate = x(3);
 % lateralError = x(4);
 headingError = x(5);
 
-frontAxleTorque = u(1);
-roadWheelAngle = u(2);
+frontAxleTorque = x(6);
+roadWheelAngle = x(7);
+
+frontAxleTorqueRate = u(1);
+roadWheelAngleRate = u(2);
 
 %% Tire slip angles
 
@@ -120,6 +132,8 @@ explicitDynamics = [
     yawRateDot
     lateralErrorDot
     headingErrorDot
+    frontAxleTorqueRate
+    roadWheelAngleRate
     ];
 
 implicitDynamics = xdot - explicitDynamics;
@@ -128,7 +142,7 @@ implicitDynamics = xdot - explicitDynamics;
 
 model = AcadosModel();
 
-model.name = 'sdv_dynamic_bicycle';
+model.name = modelName;
 model.x = x;
 model.xdot = xdot;
 model.u = u;

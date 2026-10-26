@@ -3,7 +3,7 @@ function UT = legacy_plant_parameters(vehicle, simulation)
 
 UT = struct();
 
-UT.Ts_Veh = simulation.Ts_s;
+UT.Ts_Veh = simulation.plant_step_s; % for phase 1.3, triggered sys
 
 UT.lf = vehicle.lf_m;
 UT.lr = vehicle.lr_m;

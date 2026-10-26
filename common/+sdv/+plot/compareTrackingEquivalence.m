@@ -1,0 +1,256 @@
+function [figureHandle, comparisonTable] = ...
+    compareTrackingEquivalence(referenceFiles, candidateFiles, options)
+%COMPARETRACKINGEQUIVALENCE Compare paired tracking-result artifacts.
+%
+% The figure shows lateral and heading RMSE on separate y-axes.
+%
+% This function is phase-independent. Each MAT file must contain a
+% structure named results with tracking_metrics, or with ey_m and
+% epsi_rad fields from which the two RMSE values can be computed.
+
+arguments
+    referenceFiles string
+    candidateFiles string
+    options.ReferenceLabel (1,1) string = "Reference"
+    options.CandidateLabel (1,1) string = "Candidate"
+    options.CaseLabels string = strings(0,1)
+    options.FigureTitle (1,1) string = ...
+        "Tracking-equivalence comparison"
+    options.Visible (1,1) string ...
+        {mustBeMember(options.Visible, ["on", "off"])} = "on"
+    options.ExportFile (1,1) string = ""
+end
+
+referenceFiles = referenceFiles(:);
+candidateFiles = candidateFiles(:);
+
+assert(numel(referenceFiles) == numel(candidateFiles), ...
+    "Reference and candidate file lists must have equal lengths.");
+assert(~isempty(referenceFiles), ...
+    "At least one pair of result files is required.");
+
+numberOfCases = numel(referenceFiles);
+
+if isempty(options.CaseLabels)
+    caseLabels = strings(numberOfCases, 1);
+else
+    assert(numel(options.CaseLabels) == numberOfCases, ...
+        "CaseLabels must contain one label for each result pair.");
+    caseLabels = options.CaseLabels(:);
+end
+
+records = repmat(emptyRecord(), numberOfCases, 1);
+
+for caseIndex = 1:numberOfCases
+    reference = loadResults(referenceFiles(caseIndex));
+    candidate = loadResults(candidateFiles(caseIndex));
+
+    if isempty(options.CaseLabels)
+        caseLabels(caseIndex) = deriveCaseLabel( ...
+            reference, caseIndex);
+    end
+
+    records(caseIndex) = comparePair( ...
+        reference, ...
+        candidate, ...
+        caseLabels(caseIndex), ...
+        referenceFiles(caseIndex), ...
+        candidateFiles(caseIndex));
+end
+
+comparisonTable = struct2table(records);
+
+figureHandle = createFigure( ...
+    comparisonTable, ...
+    options.ReferenceLabel, ...
+    options.CandidateLabel, ...
+    options.FigureTitle, ...
+    options.Visible);
+
+if strlength(options.ExportFile) > 0
+    exportFolder = string(fileparts(options.ExportFile));
+    if strlength(exportFolder) > 0 && ~isfolder(exportFolder)
+        mkdir(exportFolder);
+    end
+    exportgraphics(figureHandle, options.ExportFile, Resolution=300);
+end
+
+end
+
+function record = emptyRecord()
+record = struct( ...
+    "case_label", "", ...
+    "reference_file", "", ...
+    "candidate_file", "", ...
+    "reference_lateral_rmse_m", NaN, ...
+    "candidate_lateral_rmse_m", NaN, ...
+    "lateral_rmse_change_m", NaN, ...
+    "lateral_rmse_change_percent", NaN, ...
+    "reference_heading_rmse_deg", NaN, ...
+    "candidate_heading_rmse_deg", NaN, ...
+    "heading_rmse_change_deg", NaN, ...
+    "heading_rmse_change_percent", NaN);
+end
+
+function results = loadResults(sourceFile)
+assert(isfile(sourceFile), ...
+    "Result file does not exist: %s", sourceFile);
+
+savedData = load(sourceFile, "results");
+assert(isfield(savedData, "results") && isstruct(savedData.results), ...
+    "Result file does not contain a results structure: %s", sourceFile);
+
+results = savedData.results;
+end
+
+function label = deriveCaseLabel(results, caseIndex)
+label = "Case " + caseIndex;
+
+if ~isfield(results, "metadata")
+    return;
+end
+
+metadata = results.metadata;
+if isfield(metadata, "scenario_name") && ...
+        isfield(metadata, "environment_name")
+    label = string(metadata.scenario_name) + " / " + ...
+        string(metadata.environment_name);
+elseif isfield(metadata, "scenario_name")
+    label = string(metadata.scenario_name);
+end
+
+label = replace(label, "_", " ");
+end
+
+function record = comparePair( ...
+    reference, candidate, caseLabel, referenceFile, candidateFile)
+
+referenceMetrics = trackingMetrics(reference);
+candidateMetrics = trackingMetrics(candidate);
+
+record = emptyRecord();
+record.case_label = caseLabel;
+record.reference_file = referenceFile;
+record.candidate_file = candidateFile;
+
+record.reference_lateral_rmse_m = ...
+    referenceMetrics.lateral_rmse_m;
+record.candidate_lateral_rmse_m = ...
+    candidateMetrics.lateral_rmse_m;
+record.lateral_rmse_change_m = ...
+    candidateMetrics.lateral_rmse_m - ...
+    referenceMetrics.lateral_rmse_m;
+record.lateral_rmse_change_percent = relativeChangePercent( ...
+    referenceMetrics.lateral_rmse_m, ...
+    candidateMetrics.lateral_rmse_m);
+
+record.reference_heading_rmse_deg = ...
+    referenceMetrics.heading_rmse_deg;
+record.candidate_heading_rmse_deg = ...
+    candidateMetrics.heading_rmse_deg;
+record.heading_rmse_change_deg = ...
+    candidateMetrics.heading_rmse_deg - ...
+    referenceMetrics.heading_rmse_deg;
+record.heading_rmse_change_percent = relativeChangePercent( ...
+    referenceMetrics.heading_rmse_deg, ...
+    candidateMetrics.heading_rmse_deg);
+
+end
+
+function metrics = trackingMetrics(results)
+if isfield(results, "tracking_metrics")
+    metrics = results.tracking_metrics;
+else
+    assert(isfield(results, "ey_m") && isfield(results, "epsi_rad"), ...
+        "Results must contain tracking_metrics or ey_m and epsi_rad.");
+    metrics = struct();
+    metrics.lateral_rmse_m = sqrt(mean(double(results.ey_m(:)).^2));
+    metrics.heading_rmse_deg = rad2deg( ...
+        sqrt(mean(double(results.epsi_rad(:)).^2)));
+end
+
+assert(isfield(metrics, "lateral_rmse_m"), ...
+    "Tracking metrics do not contain lateral_rmse_m.");
+
+if ~isfield(metrics, "heading_rmse_deg")
+    assert(isfield(metrics, "heading_rmse_rad"), ...
+        "Tracking metrics do not contain a heading RMSE.");
+    metrics.heading_rmse_deg = rad2deg(metrics.heading_rmse_rad);
+end
+end
+
+function changePercent = relativeChangePercent(referenceValue, candidateValue)
+changePercent = 100 * (candidateValue - referenceValue) / ...
+    max(abs(referenceValue), eps);
+end
+
+function figureHandle = createFigure( ...
+    comparisonTable, ...
+    referenceLabel, candidateLabel, figureTitle, ...
+    visibility)
+
+numberOfCases = height(comparisonTable);
+x = (1:numberOfCases).';
+labels = comparisonTable.case_label;
+
+referenceLateralColor = [0.35, 0.60, 0.85];
+candidateLateralColor = [0.68, 0.83, 0.95];
+referenceHeadingColor = [0.90, 0.50, 0.36];
+candidateHeadingColor = [0.98, 0.75, 0.52];
+
+figureHandle = figure( ...
+    Name=figureTitle, ...
+    Color="white", ...
+    Visible=visibility);
+
+layout = tiledlayout( ...
+    figureHandle, 1, 1, ...
+    TileSpacing="compact", ...
+    Padding="compact");
+
+%% Paired RMSE bars using separate y-axes.
+rmseAxes = nexttile(layout);
+hold(rmseAxes, "on");
+
+yyaxis(rmseAxes, "left");
+referenceLateralBar = bar( ...
+    rmseAxes, x - 0.27, ...
+    comparisonTable.reference_lateral_rmse_m, ...
+    0.16, FaceColor=referenceLateralColor, EdgeColor="none");
+candidateLateralBar = bar( ...
+    rmseAxes, x - 0.09, ...
+    comparisonTable.candidate_lateral_rmse_m, ...
+    0.16, FaceColor=candidateLateralColor, EdgeColor="none");
+ylabel(rmseAxes, "Lateral RMSE (m)");
+
+yyaxis(rmseAxes, "right");
+referenceHeadingBar = bar( ...
+    rmseAxes, x + 0.09, ...
+    comparisonTable.reference_heading_rmse_deg, ...
+    0.16, FaceColor=referenceHeadingColor, EdgeColor="none");
+candidateHeadingBar = bar( ...
+    rmseAxes, x + 0.27, ...
+    comparisonTable.candidate_heading_rmse_deg, ...
+    0.16, FaceColor=candidateHeadingColor, EdgeColor="none");
+ylabel(rmseAxes, "Heading RMSE (deg)");
+
+configureCaseAxis(rmseAxes, x, labels);
+xlabel(rmseAxes, "Scenario / environment");
+title(rmseAxes, figureTitle, Interpreter="none");
+grid(rmseAxes, "on");
+legend( ...
+    rmseAxes, ...
+    [referenceLateralBar, candidateLateralBar, ...
+    referenceHeadingBar, candidateHeadingBar], ...
+    [referenceLabel + " lateral", candidateLabel + " lateral", ...
+    referenceLabel + " heading", candidateLabel + " heading"], ...
+    Location="best", Interpreter="none");
+end
+
+function configureCaseAxis(axesHandle, x, labels)
+axesHandle.XLim = [0.5, numel(x) + 0.5];
+axesHandle.XTick = x;
+axesHandle.XTickLabel = labels;
+axesHandle.TickLabelInterpreter = "none";
+xtickangle(axesHandle, 20);
+end

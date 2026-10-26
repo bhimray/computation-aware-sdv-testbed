@@ -14,9 +14,11 @@ arguments
     environmentName (1,1) string = "dry_road"
     options.ActuationDelay_s (1,1) double ...
         {mustBeNonnegative} = 0
+    options.DelayMode (1,1) double ...
+        {mustBeMember(options.DelayMode, [1, 2])} = 1
+    options.RandomDelayProfile = []
+    options.RandomSeed (1,1) double = NaN
     options.SaveResults (1,1) logical = true
-    options.SaveFigures (1,1) logical = true
-    options.ShowFigures (1,1) logical = true
 end
 
 phaseName = lower(strtrim(phaseName));
@@ -33,6 +35,15 @@ switch phaseName
     case "phase1"
         modelName = "phase1_baseline";
 
+    case "phase1_trigger"
+        modelName = "phase1_baseline_sampling_jitter";
+
+    case "phase3_20ms"
+        modelName = "phase3_20ms";
+
+    case "phase3_50ms"
+        modelName = "phase3_50ms";
+
     otherwise
         error( ...
             "SDV:UnsupportedPhase", ...
@@ -47,10 +58,11 @@ runConfig.model_name = modelName;
 runConfig.scenario_name = scenarioName;
 runConfig.environment_name = environmentName;
 runConfig.actuation_delay_s = options.ActuationDelay_s;
+runConfig.delay_mode = options.DelayMode;
+runConfig.random_delay_profile = options.RandomDelayProfile;
+runConfig.random_seed = options.RandomSeed;
 
 runConfig.output = struct();
 runConfig.output.save_results = options.SaveResults;
-runConfig.output.save_figures = options.SaveFigures;
-runConfig.output.show_figures = options.ShowFigures;
 
 end

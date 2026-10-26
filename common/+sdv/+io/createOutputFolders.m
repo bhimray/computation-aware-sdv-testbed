@@ -1,24 +1,51 @@
 function folders = createOutputFolders( ...
-    projectRoot, runConfig, controllerName)
+    projectRoot, runConfig, controllerName, options)
 %CREATEOUTPUTFOLDERS Create deterministic result and figure directories.
 
 arguments
     projectRoot (1,1) string
     runConfig (1,1) struct
     controllerName (1,1) string
+    options.CreateResults (1,1) logical = true
+    options.CreateFigures (1,1) logical = true
 end
 
-pathParts = [ ...
-    runConfig.phase_name
-    controllerName
-    ];
+phaseFolderName = runConfig.phase_name;
+
+if runConfig.phase_name == "phase1_trigger"
+    phaseFolderName = "phase1";
+end
+
+pathParts = [phaseFolderName; controllerName];
 
 if runConfig.phase_name == "phase1"
-    delayMilliseconds = 1e3 * runConfig.actuation_delay_s;
-    delayText = string(sprintf("%g", delayMilliseconds));
-    delayText = replace(delayText, ".", "p");
+    if runConfig.delay_mode == 2
+        maximumDelay_ms = ceil(1e3*max( ...
+            runConfig.random_delay_profile.Data, [], "all"));
+        delayText = replace( ...
+            string(sprintf("%g", maximumDelay_ms)), ".", "p");
+        pathParts(end + 1) = "random_delay";
+        pathParts(end + 1) = ...
+            "maximum_delay_" + delayText + "_ms";
+        pathParts(end + 1) = ...
+            "seed_" + string(runConfig.random_seed);
+    else
+        delayMilliseconds = 1e3 * runConfig.actuation_delay_s;
+        delayText = string(sprintf("%g", delayMilliseconds));
+        delayText = replace(delayText, ".", "p");
+        pathParts(end + 1) = ...
+            "actuation_delay_" + delayText + "_ms";
+    end
+elseif runConfig.phase_name == "phase1_trigger"
+    jitterText = string(sprintf( ...
+        "%g", runConfig.jitter.bound_ms));
+    jitterText = replace(jitterText, ".", "p");
+
+    pathParts(end + 1) = "sampling_jitter";
     pathParts(end + 1) = ...
-        "actuation_delay_" + delayText + "_ms";
+        "jitter_bound_" + jitterText + "_ms";
+    pathParts(end + 1) = ...
+        "seed_" + string(runConfig.jitter.random_seed);
 end
 
 pathParts(end + 1) = runConfig.scenario_name;
@@ -27,15 +54,15 @@ pathParts(end + 1) = runConfig.environment_name;
 folders = struct();
 tailParts = pathParts(2:end);
 folders.results = fullfile( ...
-    projectRoot, runConfig.phase_name, "results", tailParts{:});
+    projectRoot, phaseFolderName, "results", tailParts{:});
 folders.figures = fullfile( ...
-    projectRoot, runConfig.phase_name, "figures", tailParts{:});
+    projectRoot, phaseFolderName, "figures", tailParts{:});
 
-if ~isfolder(folders.results)
+if options.CreateResults && ~isfolder(folders.results)
     mkdir(folders.results);
 end
 
-if ~isfolder(folders.figures)
+if options.CreateFigures && ~isfolder(folders.figures)
     mkdir(folders.figures);
 end
 

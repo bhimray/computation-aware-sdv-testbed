@@ -1,4 +1,4 @@
-function [command, solverStatus, solveTime_s, diagnostics] = ...
+function [rateCommand, solverStatus, solveTime_s, diagnostics] = ...
     solve_acados_step( ...
     solver, metadata, measuredState, stateReference, curvatureReference)
 %SOLVE_ACADOS_STEP Execute one acados MPC control update.
@@ -7,7 +7,7 @@ measuredState = measuredState(:);
 stateReference = stateReference(:);
 
 assert(numel(measuredState) == metadata.nx);
-assert(numel(stateReference) == metadata.nx);
+assert(numel(stateReference) == 5);
 
 %% Curvature preview
 
@@ -32,6 +32,7 @@ solver.set('constr_x0', measuredState);
 
 pathReference = [
     stateReference
+    zeros(2,1)
     metadata.settings.nominal_input
     ];
 
@@ -72,15 +73,16 @@ if rawStatus == 0 && ...
         all(isfinite(predictedInput), 'all') && ...
         all(isfinite(predictedState), 'all')
 
-    command = predictedInput(:,1);
+    rateCommand = predictedInput(:,1);
     solverStatus = 1;
 else
-    command = metadata.settings.nominal_input;
+    rateCommand = metadata.settings.nominal_input;
     solverStatus = -1;
 end
 
 diagnostics.raw_status = rawStatus;
 diagnostics.predicted_input = predictedInput;
 diagnostics.predicted_state = predictedState;
+diagnostics.predicted_command_state = predictedState(6:7,:);
 
 end

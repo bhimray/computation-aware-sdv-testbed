@@ -65,3 +65,103 @@ verifyEqual(testCase, metrics.duration_s, 0.02, ...
     AbsTol=1e-12);
 
 end
+
+function testIndependentPerformanceMonitor(testCase)
+
+scenario = struct();
+scenario.station_m = [0; 10; 20];
+scenario.X_ref_m = [0; 10; 20];
+scenario.Y_ref_m = [0; 0; 0];
+scenario.psi_ref_rad = [0; 0; 0];
+scenario.vx_ref_mps = [5; 5; 5];
+
+results = struct();
+results.time_s = [0; 1; 2];
+results.x_pos_m = [0; 5; 10];
+results.y_pos_m = [1; 1; 1];
+results.vx_mps = [5; 5; 5];
+results.yaw_rate_radps = [0; 0; 0];
+
+monitor = sdv.metrics.computePerformanceMonitor( ...
+    results, scenario, 0);
+
+verifyEqual(testCase, monitor.ev_mps, zeros(3,1), ...
+    AbsTol=1e-12);
+verifyEqual(testCase, monitor.ey_m, ones(3,1), ...
+    AbsTol=1e-12);
+verifyEqual(testCase, monitor.epsi_rad, zeros(3,1), ...
+    AbsTol=1e-12);
+
+end
+
+function testRandomDelayConfiguration(testCase)
+
+profile = timeseries([0; 0.01], [0; 1]);
+runConfig = sdv.config.createRun( ...
+    "phase1", "highway_cruise", "dry_road", ...
+    DelayMode=2, ...
+    RandomDelayProfile=profile, ...
+    RandomSeed=42);
+
+verifyEqual(testCase, runConfig.delay_mode, 2);
+verifyEqual(testCase, runConfig.random_seed, 42);
+verifyEqual(testCase, runConfig.random_delay_profile, profile);
+
+end
+
+function testZeroDelayResidual(testCase)
+
+time_s = (0:0.1:1).';
+command = sin(time_s);
+
+metrics = sdv.timing.computeDelayResidual( ...
+    time_s, command, time_s, command, [0; 1], [0; 0]);
+
+verifyTrue(testCase, metrics.within_tolerance);
+verifyEqual(testCase, metrics.maximum_absolute, 0, AbsTol=1e-12);
+verifyEqual(testCase, metrics.excluded_sample_count, 0);
+
+end
+
+
+function testConstantDelayResidual(testCase)
+
+time_s = (0:0.1:1).';
+command = (1:numel(time_s)).';
+delay_s = 0.2;
+queryTime_s = time_s - delay_s;
+valid = queryTime_s >= time_s(1);
+applied = zeros(size(command));
+applied(valid) = interp1( ...
+    time_s, command, queryTime_s(valid), "previous");
+
+metrics = sdv.timing.computeDelayResidual( ...
+    time_s, command, time_s, applied, ...
+    [0; 1], delay_s*ones(2,1));
+
+verifyTrue(testCase, metrics.within_tolerance);
+verifyEqual(testCase, metrics.maximum_absolute, 0, AbsTol=1e-12);
+verifyEqual(testCase, metrics.excluded_sample_count, 2);
+
+end
+
+
+function testVariableDelayResidual(testCase)
+
+time_s = (0:0.1:1).';
+command = (1:numel(time_s)).';
+delay_s = [0; 0; 0.1; 0.1; 0.2; 0.2; 0.1; 0; 0.2; 0.1; 0];
+queryTime_s = time_s - delay_s;
+valid = queryTime_s >= time_s(1);
+applied = zeros(size(command));
+applied(valid) = interp1( ...
+    time_s, command, queryTime_s(valid), "previous");
+
+metrics = sdv.timing.computeDelayResidual( ...
+    time_s, command, time_s, applied, time_s, delay_s);
+
+verifyTrue(testCase, metrics.within_tolerance);
+verifyEqual(testCase, metrics.maximum_absolute, 0, AbsTol=1e-12);
+verifyEqual(testCase, metrics.valid_sample_count, nnz(valid));
+
+end

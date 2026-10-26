@@ -15,20 +15,28 @@ controller.minimum_linearization_speed_mps = 0.5;
 
 %% Initial MPC horizon values in second
 
-controller.prediction_horizon_s = 0.50;
-controller.control_horizon_s = 0.30;
+controller.prediction_horizon_s = 1.0;
+controller.control_horizon_s = 1.0;
 
 %% Backend selection
 controller.BACKEND_ACADOS = 1;
-controller.BACKEND_MATLAB = 2; %% NOT WORKING
-controller.BACKEND_ADAPTIVE = 3;
+controller.BACKEND_ADAPTIVE = 2;
 
 controller.controller_backend = ...
     controller.BACKEND_ACADOS;
 
+%% FOR PHASE1, 1.1 and 1.2
+controller.DELAY_MODE_CONSTANT = 1;
+controller.DELAY_MODE_RANDOM = 2;
+
+controller.delayMode = controller.DELAY_MODE_RANDOM;
+
+controller.actuationDelay_s = 0.05;
+controller.maximumRandomDelay_s = 0.3;
+
 %% Prediction-model dimensions
 
-controller.num_states = 5;
+controller.num_states = 7;
 controller.num_inputs = 2;
 controller.num_disturbances = 1;
 
@@ -42,16 +50,18 @@ controller.state_names = [ ...
     "lateral_speed_mps"
     "yaw_rate_radps"
     "lateral_error_m"
-    "heading_error_rad"];
-
-controller.input_names = [ ...
+    "heading_error_rad"
     "signed_front_axle_torque_Nm"
     "front_road_wheel_angle_rad"];
+
+controller.input_names = [ ...
+    "signed_front_axle_torque_rate_Nmps"
+    "front_road_wheel_rate_radps"];
 
 controller.disturbance_names = ...
     "path_curvature_1pm";
 
-controller.output_names = controller.state_names;
+controller.output_names = controller.state_names(1:5);
 
 %% Initial prediction-model state
 
@@ -62,11 +72,16 @@ controller.initial_state = [ ...
     0                   % vy, m/s
     0                   % yaw rate, rad/s
     0                   % lateral error, m
-    0];                 % heading error, rad
+    0                   % heading error, rad
+    0                   % applied front-axle torque, N*m
+    0];                 % applied road-wheel angle, rad
 
-% [vx, vy, yaw rate, lateral error, heading error]
+
+% [vx, vy, yaw rate, lateral error, heading error, torque, steering angle]
 controller.nominal_state = [
     controller.initial_speed_mps
+    0
+    0
     0
     0
     0
@@ -74,12 +89,17 @@ controller.nominal_state = [
     ];
 
 %% weights
+% [vx, vy, yaw_rate, ey, epsi]
 controller.output_weights = ...
-    [0.1 0.1 1 0.1 0.01];
+    [1 0.001 1 0.1 0.1]; %highway, aggresive - [1 0.001 1 0.1 0.1];    urban - [10 0.001 10 1 1];
 
+controller.terminal_output_weights = ...
+    [10 0.001 10 1 1]; %highway, aggressive - [10 0.001 10 1 1];      urban - [10 0.001 10 1 1];
+
+% [torque, steering_angle]
 controller.input_weights = ...
-    [0.1 0.1];
-controller.input_rate_weights = [0.1 0.1];
+    [0.01 0.1];
+controller.input_rate_weights = [0.1 0.1]; % highway, aggressive - [0.1 0.1];  urban - [0.01 0.1]
 
 %% Nominal linearization operating point
 
@@ -191,6 +211,8 @@ controller.minimumState = [
     -controller.maximumYawRate_radps    % yaw rate, rad/s
     -controller.maximumLateralError_m   % lateral error, m
     -controller.maximumHeadingError_rad % heading error, rad
+    controller.minimumSignedTorque_Nm     % torque, N*m
+    controller.minimumRoadWheelAngle_rad  % steering angle, rad
     ];
 
 controller.maximumState = [
@@ -199,6 +221,8 @@ controller.maximumState = [
     controller.maximumYawRate_radps
     controller.maximumLateralError_m
     controller.maximumHeadingError_rad
+    controller.maximumSignedTorque_Nm
+    controller.maximumRoadWheelAngle_rad
     ];
 
 %% Constraint softening
@@ -208,7 +232,7 @@ controller.stateConstraintECR = ones(5,1);
 
 % Penalty applied to constraint violation.
 controller.slackPenalty_ey = 1e5;
-controller.slackPenalty_epsi = 1e5; %1e0 not able to follow highway-cruise traj but aggressive
+controller.slackPenalty_epsi = 1e5; % 1e0 not able to follow highway-cruise traj but aggressive
 
 controller.enableIntermediateStateConstraints = true;
 controller.enableTerminalStateConstraints = false;

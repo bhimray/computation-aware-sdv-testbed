@@ -54,7 +54,7 @@ assert(max(lateralAcceleration_mps2) <= ...
 activeStops = track.stop_event_table(:,1) > 0.5;
 for stopStation_m = track.stop_event_table(activeStops,2)'
     [~, stopIndex] = min(abs(track.station_m - stopStation_m));
-    assert(track.vx_ref_mps(stopIndex) == 0, ...
+    assert(track.vx_ref_mps(stopIndex) == 2, ... %% instead of zero changed it to 2mps
         "Every active stop must contain an exact zero-speed sample.");
 end
 

@@ -13,10 +13,13 @@ end
 
 time = results.time_s;
 torque = results.torque_Nm;
-steering = results.steering_angle_rad;
-yawRate = results.yaw_rate_radps;
+steering_deg = rad2deg(results.steering_angle_rad);
+yawRate_degps = rad2deg(results.yaw_rate_radps);
 velocity = results.vx_mps;
-acceleration = results.ax_mps2;
+torqueRate = results.torque_rate_Nmps;
+torqueRateTime = results.torque_rate_time_s;
+steeringRate_degps = rad2deg(results.steering_rate_radps);
+steeringRateTime = results.steering_rate_time_s;
 xPosition = results.x_pos_m;
 yPosition = results.y_pos_m;
 actuator = actuator_parameters();
@@ -65,24 +68,24 @@ legend(Location="best");
 nexttile(layout);
 
 plot( ...
-    time, steering, ...
+    time, steering_deg, ...
     LineWidth=lineWidth, ...
     DisplayName="Road-wheel command");
 yline( ...
-    actuator.maximum_road_wheel_angle_rad, ...
+    rad2deg(actuator.maximum_road_wheel_angle_rad), ...
     "r--", ...
     LineWidth=1.3, ...
     DisplayName="Input bounds");
 
 yline( ...
-    actuator.minimum_road_wheel_angle_rad, ...
+    rad2deg(actuator.minimum_road_wheel_angle_rad), ...
     "r--", ...
     LineWidth=1.3, ...
     HandleVisibility="off");
 
 grid on;
 xlabel("Time (s)");
-ylabel("Steering angle (rad)");
+ylabel("Steering angle (deg)");
 title("Applied Road-Wheel Steering Command");
 legend(Location="best");
 
@@ -91,13 +94,13 @@ legend(Location="best");
 nexttile(layout);
 
 plot( ...
-    time, yawRate, ...
+    time, yawRate_degps, ...
     LineWidth=lineWidth, ...
     DisplayName="Measured yaw rate");
 
 grid on;
 xlabel("Time (s)");
-ylabel("Yaw rate (rad/s)");
+ylabel("Yaw rate (deg/s)");
 title("Measured Yaw Rate");
 legend(Location="best");
 
@@ -116,19 +119,28 @@ ylabel("Longitudinal speed, V_x (m/s)");
 title("Closed-Loop Velocity Profile");
 legend(Location="best");
 
-%% Longitudinal acceleration
+%% Optimal input rates
 
 nexttile(layout);
 
+yyaxis left;
 plot( ...
-    time, acceleration, ...
+    torqueRateTime, torqueRate, ...
     LineWidth=lineWidth, ...
-    DisplayName="Measured acceleration");
+    DisplayName="Torque rate");
+
+ylabel("Torque rate (N·m/s)");
+
+yyaxis right;
+plot( ...
+    steeringRateTime, steeringRate_degps, ...
+    LineWidth=lineWidth, ...
+    DisplayName="Steering rate");
 
 grid on;
 xlabel("Time (s)");
-ylabel("Acceleration, a_x (m/s²)");
-title("Closed-Loop Acceleration Profile");
+ylabel("Steering rate (deg/s)");
+title("Optimal Input Rates");
 legend(Location="best");
 
 %% Trajectory

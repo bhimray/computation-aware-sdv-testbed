@@ -4,6 +4,10 @@
 scenario = 'highway_cruise';
 config = build_phase0_configuration(scenario);
 simulationParams = config.simulation;
+vehicleParams = config.vehicle;
+UT = legacy_plant_parameters( ...
+    vehicleParams, ...
+    simulationParams);
 
 run_open_loop_drive_test;
 disp("steady-state drive test done.")
